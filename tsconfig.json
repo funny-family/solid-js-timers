@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "jsxImportSource": "solid-js",
+    "jsx": "preserve",
+    "strict": true,
+    "baseUrl": "./",
+    "declaration": true,
+    "noEmit": true,
+    "allowJs": true,
+    "outDir": "dist",
+    "typeRoots": ["./node_modules/@types/", "./types", "./node_modules"],
+    "types": ["vite/client"]
+  },
+  "include": ["lib/**/*", "vite.config.*"],
+  "exclude": ["dist/**/*", "node_modules", "vendor"]
+}
