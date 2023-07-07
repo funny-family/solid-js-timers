@@ -7,21 +7,21 @@ type UseTimeHookReturnValue = {
   seconds: string;
   minutes: string;
   hours: string;
-  format: UseTimeHookArgFormat;
+  ampm: string;
 };
 type UseTimeHook = (args?: UseTimeHookArgs) => UseTimeHookReturnValue;
 
 /**
  * @description Displays current time
  */
-export const useTime = ((args: UseTimeHookArgs) => {
+export const useTime = ((args: UseTimeHookArgs = {}) => {
   if (args.format == null) {
     args.format = '24-hour';
   }
 
   const getLocaleTimeString = (Date: DateConstructor) =>
     new Date().toLocaleTimeString('en-US', {
-      hour12: args.format === '12-hour' ? true : false,
+      hour12: false,
     });
   type GetLocaleTimeStringFunction = typeof getLocaleTimeString;
 
@@ -30,11 +30,21 @@ export const useTime = ((args: UseTimeHookArgs) => {
   };
   type DateValue = typeof date;
 
+  const getHours = (date: DateValue) =>
+    args.format === '12-hour'
+      ? `${+`${date.value[0]}${date.value[1]}` % 12}`.padStart(2, '0')
+      : `${date.value[0]}${date.value[1]}`;
+  type GetHoursFunction = typeof getHours;
+
+  const getAmPm = (date: DateValue) =>
+    +`${date.value[0]}${date.value[1]}` > 12 ? 'PM' : 'AM';
+  type GetAmPmFunction = typeof getAmPm;
+
   const timeStore = createStore<UseTimeHookReturnValue>({
     seconds: `${date.value[6]}${date.value[7]}`,
     minutes: `${date.value[3]}${date.value[4]}`,
-    hours: `${date.value[0]}${date.value[1]}`,
-    format: args.format,
+    hours: getHours(date),
+    ampm: getAmPm(date),
   });
   type TimeStore = typeof timeStore;
 
@@ -43,16 +53,19 @@ export const useTime = ((args: UseTimeHookArgs) => {
       timeStore: TimeStore,
       date: DateValue,
       Date: DateConstructor,
-      getLocaleTimeString: GetLocaleTimeStringFunction
+      getLocaleTimeString: GetLocaleTimeStringFunction,
+      getHours: GetHoursFunction,
+      getAmPm: GetAmPmFunction
     ) =>
     () => {
       date.value = getLocaleTimeString(Date);
 
       timeStore[1]('seconds', `${date.value[6]}${date.value[7]}`);
       timeStore[1]('minutes', `${date.value[3]}${date.value[4]}`);
-      timeStore[1]('hours', `${date.value[0]}${date.value[1]}`);
+      timeStore[1]('hours', getHours(date));
+      timeStore[1]('ampm', getAmPm(date));
     }
-  )(timeStore, date, Date, getLocaleTimeString);
+  )(timeStore, date, Date, getLocaleTimeString, getHours, getAmPm);
 
   const intervalID = setInterval(tick, 1000);
 
