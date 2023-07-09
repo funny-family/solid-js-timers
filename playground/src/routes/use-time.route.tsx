@@ -5,8 +5,6 @@ export const UseTimeRoute = () => {
   const time = useTime({ format: '12-hour' });
   // const time = useTime({ format: '24-hour' });
 
-  console.log('time:', time);
-
   const currentTime = (
     (time: ReturnType<typeof useTime>) => () =>
       `${time.hours}:${time.minutes}:${time.seconds} ${time.ampm}`

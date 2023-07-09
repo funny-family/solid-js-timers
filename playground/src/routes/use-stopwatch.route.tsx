@@ -6,19 +6,22 @@ interface StopwatchTimerInterface {
   start: () => void;
   stop: () => void;
   reset: () => void;
+  onUpdate: (callback: () => void) => void;
 }
 
 class StopwatchTimer implements StopwatchTimerInterface {
   clock: number = 0;
 
-  constructor() {
-    console.log('this', this);
-  }
-
   start: StopwatchTimerInterface['start'] = () => {
     if (this.#intervalID == null) {
       this.#offset = Date.now();
-      this.#intervalID = window.setInterval(this.#update, 1);
+      this.#intervalID = window.setInterval(() => {
+        this.#update();
+
+        if (this.#onUpdateCallBack != null) {
+          this.#onUpdateCallBack();
+        }
+      }, 1);
     }
   };
 
@@ -35,10 +38,12 @@ class StopwatchTimer implements StopwatchTimerInterface {
     this.clock = 0;
   };
 
-  onUpdate = () => {
-    //
-  }
+  onUpdate: StopwatchTimerInterface['onUpdate'] = (callback) => {
+    this.#onUpdateCallBack = callback;
+  };
 
+  #onUpdateCallBack: Parameters<StopwatchTimerInterface['onUpdate']>[0] | null =
+    null;
   #offset: number = 0;
   #intervalID: number | null = null;
 
@@ -52,53 +57,77 @@ class StopwatchTimer implements StopwatchTimerInterface {
 
   #update = () => {
     this.clock += this.#delta;
-  }
+  };
 }
 
 export const UseStopwatchRoute = () => {
-  const stopwatch = useStopwatch({
-    ms: 34658736,
-  });
+  const stopwatch = useStopwatch();
+  // const stopwatch = useStopwatch({ autoStart: true });
+
+  // console.log('stopwatch:'i, stopwatch);
 
   const sw = new StopwatchTimer();
-  const [ms, setMs] = createSignal(0);
+  const [ms, setMs] = createSignal(sw.clock);
+  sw.onUpdate(() => {
+    setMs(sw.clock);
+  });
 
-  // console.log('stopwatch:', stopwatch);
+  // console.log('sw:', sw);
 
   return (
-    <section>
-      <h1>stopwatch</h1>
+    <div>
+      <section>
+        <h1>stopwatch hook</h1>
+        <div>
+          <button type="button" onClick={() => stopwatch.start()}>
+            start
+          </button>
+          <button type="button" onClick={() => stopwatch.stop()}>
+            stop
+          </button>
+          <button type="button" onClick={() => stopwatch.reset()}>
+            reset
+          </button>
+        </div>
+        <div>stopwatch value: {stopwatch.value}</div>
+      </section>
 
-      <div>
-        <button
-          type="button"
-          onClick={() => {
-            sw.start();
-            setMs(sw.clock);
-          }}
-        >
-          start
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            sw.stop();
-            setMs(sw.clock);
-          }}
-        >
-          stop
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            sw.reset();
-            setMs(sw.clock);
-          }}
-        >
-          reset
-        </button>
-        <div>clock: {ms()}</div>
-      </div>
-    </section>
+      <section>
+        <h1>stopwatch 1</h1>
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              sw.start();
+              setMs(sw.clock);
+              console.log('start', sw);
+            }}
+          >
+            start
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              sw.stop();
+              setMs(sw.clock);
+              console.log('stop', sw);
+            }}
+          >
+            stop
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              sw.reset();
+              setMs(sw.clock);
+              console.log('reset', sw);
+            }}
+          >
+            reset
+          </button>
+          <div>clock: {ms()}</div>
+        </div>
+      </section>
+    </div>
   );
 };

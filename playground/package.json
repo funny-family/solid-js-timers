@@ -15,6 +15,6 @@
   },
   "dependencies": {
     "solid-js": "^1.7.6",
-    "solid-js-timers": "file:../dist"
+    "solid-js-timers": "lib:../dist"
   }
 }
