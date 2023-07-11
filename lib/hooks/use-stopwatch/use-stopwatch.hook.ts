@@ -1,15 +1,15 @@
 import { onCleanup, onMount } from 'solid-js';
-import { createStore } from 'solid-js/store';
-import {
-  type OnCleanupFunction,
-  type CreateStore,
-  type OnMountFunction,
-  type WindowClearInterval,
-} from '../../types';
+import { createMutable } from 'solid-js/store';
 import {
   type StopwatchTimerInterface,
   StopwatchTimer,
 } from './stopwatch-timer.class';
+import type {
+  OnCleanupFunction,
+  OnMountFunction,
+  WindowClearInterval,
+  CreateMutable,
+} from '../../types';
 
 type UseStopwatchHookArgs = {
   autoStart?: boolean;
@@ -23,13 +23,13 @@ type UseStopwatchHookReturnValue = {
 } & Pick<StopwatchTimerInterface, 'start' | 'stop' | 'reset'>;
 type UseStopwatchHook = (
   args?: UseStopwatchHookArgs
-) => UseStopwatchHookReturnValue;
+) => Readonly<UseStopwatchHookReturnValue>;
 
 export const useStopwatch = (
   (
     clearInterval: WindowClearInterval,
     StopwatchTimer: { new (): StopwatchTimer },
-    createStore: CreateStore,
+    createMutable: CreateMutable,
     onMount: OnMountFunction,
     onCleanup: OnCleanupFunction
   ) =>
@@ -44,7 +44,7 @@ export const useStopwatch = (
 
     const stopwatchTimer = new StopwatchTimer();
 
-    const stopwatchStore = createStore<UseStopwatchHookReturnValue>({
+    const stopwatchStore = createMutable<UseStopwatchHookReturnValue>({
       milliseconds: '00',
       seconds: '00',
       minutes: '00',
@@ -54,39 +54,36 @@ export const useStopwatch = (
       reset: null as any as () => {},
     });
 
-    stopwatchStore[1]('start', () => () => {
+    stopwatchStore.start = () => {
       stopwatchTimer.start();
-      stopwatchStore[1]('value', stopwatchTimer.clock);
-    });
+      stopwatchStore.value = stopwatchTimer.clock;
+    };
 
-    stopwatchStore[1]('stop', () => () => {
+    stopwatchStore.stop = () => {
       stopwatchTimer.stop();
-      stopwatchStore[1]('value', stopwatchTimer.clock);
-    });
+      stopwatchStore.value = stopwatchTimer.clock;
+    };
 
-    stopwatchStore[1]('reset', () => () => {
+    stopwatchStore.reset = () => {
       stopwatchTimer.reset();
-      stopwatchStore[1]('milliseconds', '00');
-      stopwatchStore[1]('seconds', '00');
-      stopwatchStore[1]('minutes', '00');
-      stopwatchStore[1]('value', 0);
-    });
+      stopwatchStore.milliseconds = '00';
+      stopwatchStore.seconds = '00';
+      stopwatchStore.minutes = '00';
+      stopwatchStore.value = 0;
+    };
 
     stopwatchTimer.onUpdate(() => {
-      stopwatchStore[1](
-        'milliseconds',
-        `${stopwatchTimer.clock || '00'}`.padStart(2, '0').slice(-2)
+      stopwatchStore.milliseconds = `${stopwatchTimer.clock || '00'}`
+        .padStart(2, '0')
+        .slice(-2);
+      stopwatchStore.seconds = `${~~(
+        (stopwatchTimer.clock % 60000) /
+        1000
+      )}`.padStart(2, '0');
+      stopwatchStore.minutes = `${~~(stopwatchTimer.clock / 60000)}`.padStart(
+        2,
+        '0'
       );
-
-      stopwatchStore[1](
-        'seconds',
-        `${~~((stopwatchTimer.clock % 60000) / 1000)}`.padStart(2, '0')
-      );
-      stopwatchStore[1](
-        'minutes',
-        `${~~(stopwatchTimer.clock / 60000)}`.padStart(2, '0')
-      );
-      stopwatchStore[1]('value', stopwatchTimer.clock);
 
       if (stopwatchTimer.clock === 3600000) {
         stopwatchTimer.reset();
@@ -95,7 +92,7 @@ export const useStopwatch = (
 
     onMount(() => {
       if (args.autoStart) {
-        stopwatchStore[0].start();
+        stopwatchStore.start();
       }
     });
 
@@ -105,12 +102,12 @@ export const useStopwatch = (
       }
     });
 
-    return stopwatchStore[0];
+    return stopwatchStore;
   }
 )(
   globalThis.clearInterval,
   StopwatchTimer,
-  createStore,
+  createMutable,
   onMount,
   onCleanup
 ) as UseStopwatchHook;
