@@ -3,6 +3,7 @@ import { createMutable } from 'solid-js/store';
 import {
   type StopwatchTimerInterface,
   StopwatchTimer,
+  StopwatchTimerConstructor,
 } from './stopwatch-timer.class';
 import type {
   OnCleanupFunction,
@@ -20,6 +21,12 @@ type UseStopwatchHookReturnValue = {
   seconds: string;
   minutes: string;
   value: number;
+  onStart: (callback: () => void) => void;
+  onStop: (callback: () => void) => void;
+  onReset: (callback: () => void) => void;
+  onUpdate: (
+    callback: (value: UseStopwatchHookReturnValue['value']) => void
+  ) => void;
 } & Pick<StopwatchTimerInterface, 'start' | 'stop' | 'reset'>;
 type UseStopwatchHook = (
   args?: UseStopwatchHookArgs
@@ -28,7 +35,7 @@ type UseStopwatchHook = (
 export const useStopwatch = (
   (
     clearInterval: WindowClearInterval,
-    StopwatchTimer: { new (): StopwatchTimer },
+    StopwatchTimer: StopwatchTimerConstructor,
     createMutable: CreateMutable,
     onMount: OnMountFunction,
     onCleanup: OnCleanupFunction
@@ -49,19 +56,38 @@ export const useStopwatch = (
       seconds: '00',
       minutes: '00',
       value: stopwatchTimer.clock,
-      start: null as any as () => {},
-      stop: null as any as () => {},
-      reset: null as any as () => {},
+      start: null as any as UseStopwatchHookReturnValue['start'],
+      stop: null as any as UseStopwatchHookReturnValue['stop'],
+      reset: null as any as UseStopwatchHookReturnValue['reset'],
+      onStart: null as any as UseStopwatchHookReturnValue['onStart'],
+      onStop: null as any as UseStopwatchHookReturnValue['onStop'],
+      onReset: null as any as UseStopwatchHookReturnValue['onReset'],
+      onUpdate: null as any as UseStopwatchHookReturnValue['onUpdate'],
     });
 
+    // const startListeners =
+    //   Array<Parameters<UseStopwatchHookReturnValue['onStart']>[0]>();
     stopwatchStore.start = () => {
       stopwatchTimer.start();
       stopwatchStore.value = stopwatchTimer.clock;
+
+      // stopwatchStore.onStart = (callback) => {
+      //   startListeners.push(callback);
+      // };
+
+      // if (startListeners.length > 0) {
+      //   for (let i = 0; i < startListeners.length; i++) {
+      //     startListeners[i]();
+      //   }
+      // }
     };
 
     stopwatchStore.stop = () => {
       stopwatchTimer.stop();
       stopwatchStore.value = stopwatchTimer.clock;
+      stopwatchStore.onStop = (callback) => {
+        callback();
+      };
     };
 
     stopwatchStore.reset = () => {
@@ -70,6 +96,9 @@ export const useStopwatch = (
       stopwatchStore.seconds = '00';
       stopwatchStore.minutes = '00';
       stopwatchStore.value = 0;
+      stopwatchStore.onReset = (callback) => {
+        callback();
+      };
     };
 
     stopwatchTimer.onUpdate(() => {
@@ -88,6 +117,10 @@ export const useStopwatch = (
       if (stopwatchTimer.clock === 3600000) {
         stopwatchTimer.reset();
       }
+
+      stopwatchStore.onUpdate = (callback) => {
+        callback(stopwatchStore.value);
+      };
     });
 
     onMount(() => {

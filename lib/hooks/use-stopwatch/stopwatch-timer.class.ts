@@ -7,6 +7,10 @@ export interface StopwatchTimerInterface {
   onUpdate: (callback: () => void) => void;
 }
 
+export type StopwatchTimerConstructor = {
+  new (): StopwatchTimer;
+};
+
 export class StopwatchTimer implements StopwatchTimerInterface {
   clock: number = 0;
 
