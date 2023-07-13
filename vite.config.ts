@@ -14,6 +14,7 @@ export default defineConfig({
     }),
   ],
   build: {
+    minify: false,
     lib: {
       entry: path.resolve(__dirname, './lib/index.ts'),
       name: 'solid-js-timers',
