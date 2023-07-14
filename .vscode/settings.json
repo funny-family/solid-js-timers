@@ -22,5 +22,5 @@
     "javascriptreact",
     "typescriptreact"
   ],
-  "cSpell.words": ["ampm", "autoname"]
+  "cSpell.words": ["ampm", "autoname", "Resetable", "Startable", "Stopable"]
 }
