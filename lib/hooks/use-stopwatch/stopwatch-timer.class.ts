@@ -1,15 +1,17 @@
 import type { WindowClearInterval, WindowSetInterval } from '../../types';
 
+type StopwatchTimerListener = (callback: () => void) => void;
+
 export interface StopwatchTimerInterface {
   value: number;
   intervalID: number | null;
   start: () => void;
   stop: () => void;
   reset: () => void;
-  onStart: (callback: () => void) => void;
-  onStop: (callback: () => void) => void;
-  onReset: (callback: () => void) => void;
-  onUpdate: (callback: () => void) => void;
+  onStart: StopwatchTimerListener;
+  onStop: StopwatchTimerListener;
+  onReset: StopwatchTimerListener;
+  onUpdate: StopwatchTimerListener;
 }
 
 export type StopwatchTimerConstructor = {
