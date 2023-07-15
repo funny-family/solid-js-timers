@@ -26,16 +26,31 @@ type UseStopwatchHookArgs = {
   autoClearInterval?: boolean;
   autoClearListeners?: boolean;
 };
+
+type UseStopwatchHookListenerArgs = Pick<
+  UseStopwatchHookReturnValue,
+  'milliseconds' | 'seconds' | 'minutes' | 'value'
+>;
+
+type UseStopwatchHookListenerCallback = (
+  args: UseStopwatchHookListenerArgs
+) => void;
+
+type UseStopwatchHookListener = (
+  callback: UseStopwatchHookListenerCallback
+) => void;
+
 type UseStopwatchHookReturnValue = {
   milliseconds: string;
   seconds: string;
   minutes: string;
   value: number;
-  onStart: (callback: () => void) => void;
-  onStop: (callback: () => void) => void;
-  onReset: (callback: () => void) => void;
-  onUpdate: (callback: () => void) => void;
+  onStart: UseStopwatchHookListener;
+  onStop: UseStopwatchHookListener;
+  onReset: UseStopwatchHookListener;
+  onUpdate: UseStopwatchHookListener;
 } & Pick<StopwatchTimerInterface, 'start' | 'stop' | 'reset'>;
+
 type UseStopwatchHook = (
   args?: UseStopwatchHookArgs
 ) => Readonly<UseStopwatchHookReturnValue>;
@@ -77,10 +92,10 @@ export const useStopwatch = (
       start: null as unknown as UseStopwatchHookReturnValue['start'],
       stop: null as unknown as UseStopwatchHookReturnValue['stop'],
       reset: null as unknown as UseStopwatchHookReturnValue['reset'],
-      onStart: null as unknown as UseStopwatchHookReturnValue['onStart'],
-      onStop: null as unknown as UseStopwatchHookReturnValue['onStop'],
-      onReset: null as unknown as UseStopwatchHookReturnValue['onReset'],
-      onUpdate: null as unknown as UseStopwatchHookReturnValue['onUpdate'],
+      onStart: null as unknown as UseStopwatchHookListener,
+      onStop: null as unknown as UseStopwatchHookListener,
+      onReset: null as unknown as UseStopwatchHookListener,
+      onUpdate: null as unknown as UseStopwatchHookListener,
     });
 
     // support only till 60 min (1 hour)
@@ -93,20 +108,29 @@ export const useStopwatch = (
     stopwatchStore.minutes = calculateMinutes(stopwatchTimer);
     stopwatchStore.value = stopwatchTimer.value;
 
-    let startListeners =
-      Array<Parameters<UseStopwatchHookReturnValue['onStart']>[0]>();
+    let startListeners = Array<UseStopwatchHookListenerCallback>();
     stopwatchStore.start = () => {
       stopwatchTimer.start();
 
       const startListenersLength = startListeners.length;
 
       if (startListenersLength === 1) {
-        startListeners[0]();
+        startListeners[0]({
+          milliseconds: stopwatchStore.milliseconds,
+          seconds: stopwatchStore.seconds,
+          minutes: stopwatchStore.minutes,
+          value: stopwatchStore.value,
+        });
       }
 
       if (startListenersLength > 1) {
         for (let i = 0; i < startListenersLength; i++) {
-          startListeners[i]();
+          startListeners[i]({
+            milliseconds: stopwatchStore.milliseconds,
+            seconds: stopwatchStore.seconds,
+            minutes: stopwatchStore.minutes,
+            value: stopwatchStore.value,
+          });
         }
       }
     };
@@ -114,19 +138,28 @@ export const useStopwatch = (
       startListeners.push(callback);
     };
 
-    let stopListeners =
-      Array<Parameters<UseStopwatchHookReturnValue['onStop']>[0]>();
+    let stopListeners = Array<UseStopwatchHookListenerCallback>();
     const stopListenersLength = stopListeners.length;
     stopwatchStore.stop = () => {
       stopwatchTimer.stop();
 
       if (stopListenersLength === 1) {
-        resetListeners[0]();
+        resetListeners[0]({
+          milliseconds: stopwatchStore.milliseconds,
+          seconds: stopwatchStore.seconds,
+          minutes: stopwatchStore.minutes,
+          value: stopwatchStore.value,
+        });
       }
 
       if (stopListenersLength > 1) {
         for (let i = 0; i < stopListenersLength; i++) {
-          stopListeners[i]();
+          stopListeners[i]({
+            milliseconds: stopwatchStore.milliseconds,
+            seconds: stopwatchStore.seconds,
+            minutes: stopwatchStore.minutes,
+            value: stopwatchStore.value,
+          });
         }
       }
     };
@@ -134,8 +167,7 @@ export const useStopwatch = (
       stopListeners.push(callback);
     };
 
-    let resetListeners =
-      Array<Parameters<UseStopwatchHookReturnValue['onReset']>[0]>();
+    let resetListeners = Array<UseStopwatchHookListenerCallback>();
     const resetListenersLength = resetListeners.length;
     stopwatchStore.reset = () => {
       stopwatchTimer.reset();
@@ -146,12 +178,22 @@ export const useStopwatch = (
       stopwatchStore.value = 0;
 
       if (resetListenersLength === 1) {
-        resetListeners[0]();
+        resetListeners[0]({
+          milliseconds: stopwatchStore.milliseconds,
+          seconds: stopwatchStore.seconds,
+          minutes: stopwatchStore.minutes,
+          value: stopwatchStore.value,
+        });
       }
 
       if (resetListenersLength > 1) {
         for (let i = 0; i < resetListenersLength; i++) {
-          resetListeners[i]();
+          resetListeners[i]({
+            milliseconds: stopwatchStore.milliseconds,
+            seconds: stopwatchStore.seconds,
+            minutes: stopwatchStore.minutes,
+            value: stopwatchStore.value,
+          });
         }
       }
     };
@@ -159,8 +201,7 @@ export const useStopwatch = (
       resetListeners.push(callback);
     };
 
-    let updateListeners =
-      Array<Parameters<UseStopwatchHookReturnValue['onUpdate']>[0]>();
+    let updateListeners = Array<UseStopwatchHookListenerCallback>();
     const updateListenersLength = updateListeners.length;
     stopwatchTimer.onUpdate(() => {
       stopwatchStore.milliseconds = calculateMilliseconds(stopwatchTimer);
@@ -174,12 +215,22 @@ export const useStopwatch = (
       }
 
       if (updateListenersLength === 1) {
-        updateListeners[0]();
+        updateListeners[0]({
+          milliseconds: stopwatchStore.milliseconds,
+          seconds: stopwatchStore.seconds,
+          minutes: stopwatchStore.minutes,
+          value: stopwatchStore.value,
+        });
       }
 
       if (updateListenersLength > 1) {
         for (let i = 0; i < updateListenersLength; i++) {
-          updateListeners[i]();
+          updateListeners[i]({
+            milliseconds: stopwatchStore.milliseconds,
+            seconds: stopwatchStore.seconds,
+            minutes: stopwatchStore.minutes,
+            value: stopwatchStore.value,
+          });
         }
       }
     });
