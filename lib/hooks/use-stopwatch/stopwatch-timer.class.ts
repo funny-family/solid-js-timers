@@ -5,6 +5,7 @@ type StopwatchTimerListener = (callback: () => void) => void;
 export interface StopwatchTimerInterface {
   value: number;
   intervalID: number | null;
+  isRunning: boolean;
   start: () => void;
   stop: () => void;
   reset: () => void;
@@ -19,13 +20,24 @@ export type StopwatchTimerConstructor = {
 };
 
 export class StopwatchTimer implements StopwatchTimerInterface {
-  value: StopwatchTimerInterface['value'] = 0;
-
   constructor(delay?: number) {
     this.#delay = delay || 1;
   }
 
+  value: StopwatchTimerInterface['value'] = 1;
+  isRunning: StopwatchTimerInterface['isRunning'] = false;
+
+  get intervalID(): StopwatchTimerInterface['intervalID'] {
+    return this.#intervalID;
+  }
+
   start: StopwatchTimerInterface['start'] = () => {
+    if (this.#state === 'running') {
+      return;
+    }
+    this.#state = 'running';
+    this.isRunning = true;
+
     if (this.#onStartCallBack != null) {
       this.#onStartCallBack();
     }
@@ -43,6 +55,12 @@ export class StopwatchTimer implements StopwatchTimerInterface {
   };
 
   stop: StopwatchTimerInterface['stop'] = () => {
+    if (this.isRunning === false) {
+      return;
+    }
+    this.#state = 'stopped';
+    this.isRunning = false;
+
     if (this.#onStopCallBack != null) {
       this.#onStopCallBack();
     }
@@ -51,6 +69,12 @@ export class StopwatchTimer implements StopwatchTimerInterface {
   };
 
   reset: StopwatchTimerInterface['reset'] = () => {
+    if (this.#state === 'idel') {
+      return;
+    }
+    this.#state = 'idel';
+    this.isRunning = false;
+
     if (this.#onResetCallBack != null) {
       this.#onResetCallBack();
     }
@@ -76,13 +100,10 @@ export class StopwatchTimer implements StopwatchTimerInterface {
     this.#onUpdateCallBack = callback;
   };
 
-  get intervalID(): StopwatchTimerInterface['intervalID'] {
-    return this.#intervalID;
-  }
-
   #delay: number = 0;
   #offset: number = 0;
   #intervalID: number | null = null;
+  #state: 'idel' | 'running' | 'stopped' = 'idel';
   #onStartCallBack: Parameters<StopwatchTimerInterface['onStart']>[0] | null =
     null;
   #onStopCallBack: Parameters<StopwatchTimerInterface['onStop']>[0] | null =
@@ -111,3 +132,5 @@ export class StopwatchTimer implements StopwatchTimerInterface {
     }
   };
 }
+
+// window.StopwatchTimer = StopwatchTimer
