@@ -18,6 +18,7 @@ import type {
   OnMountFunction,
   WindowClearInterval,
   CreateMutable,
+  RequireAtLeastOne,
 } from '../../types';
 
 type UseStopwatchHookArgs = {
@@ -29,7 +30,7 @@ type UseStopwatchHookArgs = {
 
 type UseStopwatchHookListenerArgs = Pick<
   UseStopwatchHookReturnValue,
-  'milliseconds' | 'seconds' | 'minutes' | 'value'
+  'milliseconds' | 'seconds' | 'minutes' | 'value' | 'isRunning'
 >;
 
 type UseStopwatchHookListenerCallback = (
@@ -45,6 +46,7 @@ type UseStopwatchHookReturnValue = {
   seconds: string;
   minutes: string;
   value: number;
+  isRunning: boolean;
   onStart: UseStopwatchHookListener;
   onStop: UseStopwatchHookListener;
   onReset: UseStopwatchHookListener;
@@ -52,7 +54,7 @@ type UseStopwatchHookReturnValue = {
 } & Pick<StopwatchTimerInterface, 'start' | 'stop' | 'reset'>;
 
 type UseStopwatchHook = (
-  args?: UseStopwatchHookArgs
+  args?: RequireAtLeastOne<UseStopwatchHookArgs>
 ) => Readonly<UseStopwatchHookReturnValue>;
 
 export const useStopwatch = (
@@ -89,6 +91,7 @@ export const useStopwatch = (
       seconds: '00',
       minutes: '00',
       value: 0,
+      isRunning: false,
       start: null as unknown as UseStopwatchHookReturnValue['start'],
       stop: null as unknown as UseStopwatchHookReturnValue['stop'],
       reset: null as unknown as UseStopwatchHookReturnValue['reset'],
@@ -103,106 +106,112 @@ export const useStopwatch = (
       args.initialMilliseconds = 0;
     }
     stopwatchTimer.value = args.initialMilliseconds;
-    stopwatchStore.milliseconds = calculateMilliseconds(stopwatchTimer);
-    stopwatchStore.seconds = calculateSeconds(stopwatchTimer);
-    stopwatchStore.minutes = calculateMinutes(stopwatchTimer);
-    stopwatchStore.value = stopwatchTimer.value;
 
+    /* ----------------- register start listeners ----------------- */
     let startListeners = Array<UseStopwatchHookListenerCallback>();
-    stopwatchStore.start = () => {
-      stopwatchTimer.start();
+    stopwatchStore.start = stopwatchTimer.start;
+    stopwatchTimer.onStart(() => {
+      stopwatchStore.isRunning = stopwatchTimer.isRunning;
 
-      const startListenersLength = startListeners.length;
-
-      if (startListenersLength === 1) {
+      if (startListeners.length === 1) {
         startListeners[0]({
           milliseconds: stopwatchStore.milliseconds,
           seconds: stopwatchStore.seconds,
           minutes: stopwatchStore.minutes,
           value: stopwatchStore.value,
+          isRunning: stopwatchStore.isRunning,
         });
       }
 
-      if (startListenersLength > 1) {
-        for (let i = 0; i < startListenersLength; i++) {
+      if (startListeners.length > 1) {
+        for (let i = 0; i < startListeners.length; i++) {
           startListeners[i]({
             milliseconds: stopwatchStore.milliseconds,
             seconds: stopwatchStore.seconds,
             minutes: stopwatchStore.minutes,
             value: stopwatchStore.value,
+            isRunning: stopwatchStore.isRunning,
           });
         }
       }
-    };
+    });
     stopwatchStore.onStart = (callback) => {
       startListeners.push(callback);
     };
+    /* ----------------- register start listeners ----------------- */
 
+    /* ----------------- register stop listeners ----------------- */
     let stopListeners = Array<UseStopwatchHookListenerCallback>();
-    const stopListenersLength = stopListeners.length;
-    stopwatchStore.stop = () => {
-      stopwatchTimer.stop();
+    stopwatchStore.stop = stopwatchTimer.stop;
+    stopwatchTimer.onStop(() => {
+      stopwatchStore.isRunning = stopwatchTimer.isRunning;
 
-      if (stopListenersLength === 1) {
-        resetListeners[0]({
+      if (stopListeners.length === 1) {
+        stopListeners[0]({
           milliseconds: stopwatchStore.milliseconds,
           seconds: stopwatchStore.seconds,
           minutes: stopwatchStore.minutes,
           value: stopwatchStore.value,
+          isRunning: stopwatchStore.isRunning,
         });
       }
 
-      if (stopListenersLength > 1) {
-        for (let i = 0; i < stopListenersLength; i++) {
+      if (stopListeners.length > 1) {
+        for (let i = 0; i < stopListeners.length; i++) {
           stopListeners[i]({
             milliseconds: stopwatchStore.milliseconds,
             seconds: stopwatchStore.seconds,
             minutes: stopwatchStore.minutes,
             value: stopwatchStore.value,
+            isRunning: stopwatchStore.isRunning,
           });
         }
       }
-    };
+    });
     stopwatchStore.onStop = (callback) => {
       stopListeners.push(callback);
     };
+    /* ----------------- register stop listeners ----------------- */
 
+    /* ----------------- register reset listeners ----------------- */
     let resetListeners = Array<UseStopwatchHookListenerCallback>();
-    const resetListenersLength = resetListeners.length;
-    stopwatchStore.reset = () => {
-      stopwatchTimer.reset();
-
+    stopwatchStore.reset = stopwatchTimer.reset;
+    stopwatchTimer.onReset(() => {
       stopwatchStore.milliseconds = '00';
       stopwatchStore.seconds = '00';
       stopwatchStore.minutes = '00';
       stopwatchStore.value = 0;
+      stopwatchStore.isRunning = stopwatchTimer.isRunning;
 
-      if (resetListenersLength === 1) {
+      if (resetListeners.length === 1) {
         resetListeners[0]({
           milliseconds: stopwatchStore.milliseconds,
           seconds: stopwatchStore.seconds,
           minutes: stopwatchStore.minutes,
           value: stopwatchStore.value,
+          isRunning: stopwatchStore.isRunning,
         });
       }
 
-      if (resetListenersLength > 1) {
-        for (let i = 0; i < resetListenersLength; i++) {
+      if (resetListeners.length > 1) {
+        for (let i = 0; i < resetListeners.length; i++) {
           resetListeners[i]({
             milliseconds: stopwatchStore.milliseconds,
             seconds: stopwatchStore.seconds,
             minutes: stopwatchStore.minutes,
             value: stopwatchStore.value,
+            isRunning: stopwatchStore.isRunning,
           });
         }
       }
-    };
+    });
     stopwatchStore.onReset = (callback) => {
       resetListeners.push(callback);
     };
+    /* ----------------- register reset listeners ----------------- */
 
+    /* ----------------- register update listeners ----------------- */
     let updateListeners = Array<UseStopwatchHookListenerCallback>();
-    const updateListenersLength = updateListeners.length;
     stopwatchTimer.onUpdate(() => {
       stopwatchStore.milliseconds = calculateMilliseconds(stopwatchTimer);
       stopwatchStore.seconds = calculateSeconds(stopwatchTimer);
@@ -214,22 +223,24 @@ export const useStopwatch = (
         stopwatchStore.reset();
       }
 
-      if (updateListenersLength === 1) {
+      if (updateListeners.length === 1) {
         updateListeners[0]({
           milliseconds: stopwatchStore.milliseconds,
           seconds: stopwatchStore.seconds,
           minutes: stopwatchStore.minutes,
           value: stopwatchStore.value,
+          isRunning: stopwatchStore.isRunning,
         });
       }
 
-      if (updateListenersLength > 1) {
-        for (let i = 0; i < updateListenersLength; i++) {
+      if (updateListeners.length > 1) {
+        for (let i = 0; i < updateListeners.length; i++) {
           updateListeners[i]({
             milliseconds: stopwatchStore.milliseconds,
             seconds: stopwatchStore.seconds,
             minutes: stopwatchStore.minutes,
             value: stopwatchStore.value,
+            isRunning: stopwatchStore.isRunning,
           });
         }
       }
@@ -237,6 +248,7 @@ export const useStopwatch = (
     stopwatchStore.onUpdate = (callback) => {
       updateListeners.push(callback);
     };
+    /* ----------------- register update listeners ----------------- */
 
     onMount(() => {
       if (args.autoStart) {
