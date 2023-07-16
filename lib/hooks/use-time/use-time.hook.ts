@@ -1,21 +1,39 @@
 import { onCleanup } from 'solid-js';
-import { createStore } from 'solid-js/store';
-import {
-  type CreateStore,
-  type WindowSetInterval,
-  type WindowClearInterval,
-  type OnCleanupFunction,
+import { createMutable } from 'solid-js/store';
+import type {
+  WindowSetInterval,
+  WindowClearInterval,
+  OnCleanupFunction,
+  CreateMutable,
+  RequireAtLeastOne,
 } from '../../types';
 
 type UseTimeHookArgFormat = '24-hour' | '12-hour';
+
 type UseTimeHookArgs = { format?: UseTimeHookArgFormat };
+
+type UseTimeHookHookListenerArgs = Pick<
+  UseTimeHookReturnValue,
+  'seconds' | 'minutes' | 'hours' | 'ampm'
+>;
+
+type UseTimeHookListenerCallback = (
+  args: Readonly<UseTimeHookHookListenerArgs>
+) => void;
+
+type UseTimeHookListener = (callback: UseTimeHookListenerCallback) => void;
+
 type UseTimeHookReturnValue = {
   seconds: string;
   minutes: string;
   hours: string;
   ampm: string;
+  onUpdate: UseTimeHookListener;
 };
-type UseTimeHook = (args?: UseTimeHookArgs) => UseTimeHookReturnValue;
+
+type UseTimeHook = (
+  args?: RequireAtLeastOne<UseTimeHookArgs>
+) => Readonly<UseTimeHookReturnValue>;
 
 /**
  * @description Displays current time
@@ -25,7 +43,7 @@ export const useTime = (
     Date: DateConstructor,
     setInterval: WindowSetInterval,
     clearInterval: WindowClearInterval,
-    createStore: CreateStore,
+    createMutable: CreateMutable,
     onCleanup: OnCleanupFunction
   ) =>
   (args: UseTimeHookArgs = {}) => {
@@ -54,13 +72,20 @@ export const useTime = (
       +`${date.value[0]}${date.value[1]}` > 12 ? 'PM' : 'AM';
     type GetAmPmFunction = typeof getAmPm;
 
-    const timeStore = createStore<UseTimeHookReturnValue>({
+    const timeStore = createMutable<UseTimeHookReturnValue>({
       seconds: `${date.value[6]}${date.value[7]}`,
       minutes: `${date.value[3]}${date.value[4]}`,
       hours: getHours(date),
       ampm: getAmPm(date),
+      onUpdate: null as unknown as UseTimeHookReturnValue['onUpdate'],
     });
     type TimeStore = typeof timeStore;
+
+    const updateListeners = Array<UseTimeHookListenerCallback>();
+    type UpdateListeners = typeof updateListeners;
+    timeStore.onUpdate = (callback) => {
+      updateListeners.push(callback);
+    };
 
     const tick = (
       (
@@ -69,17 +94,43 @@ export const useTime = (
         Date: DateConstructor,
         getLocaleTimeString: GetLocaleTimeStringFunction,
         getHours: GetHoursFunction,
-        getAmPm: GetAmPmFunction
+        getAmPm: GetAmPmFunction,
+        updateListeners: UpdateListeners
       ) =>
       () => {
         date.value = getLocaleTimeString(Date);
 
-        timeStore[1]('seconds', `${date.value[6]}${date.value[7]}`);
-        timeStore[1]('minutes', `${date.value[3]}${date.value[4]}`);
-        timeStore[1]('hours', getHours(date));
-        timeStore[1]('ampm', getAmPm(date));
+        timeStore.seconds = `${date.value[6]}${date.value[7]}`;
+        timeStore.minutes = `${date.value[3]}${date.value[4]}`;
+        timeStore.hours = getHours(date);
+        timeStore.ampm = getAmPm(date);
+
+        const listenerArgs: UseTimeHookHookListenerArgs = {
+          seconds: timeStore.seconds,
+          minutes: timeStore.minutes,
+          hours: timeStore.hours,
+          ampm: timeStore.ampm,
+        };
+
+        if (updateListeners.length === 1) {
+          updateListeners[0](listenerArgs);
+        }
+
+        if (updateListeners.length > 1) {
+          for (let i = 0; i < updateListeners.length; i++) {
+            updateListeners[i](listenerArgs);
+          }
+        }
       }
-    )(timeStore, date, Date, getLocaleTimeString, getHours, getAmPm);
+    )(
+      timeStore,
+      date,
+      Date,
+      getLocaleTimeString,
+      getHours,
+      getAmPm,
+      updateListeners
+    );
 
     const intervalID = setInterval(tick, 1000);
 
@@ -87,12 +138,12 @@ export const useTime = (
       clearInterval(intervalID);
     });
 
-    return timeStore[0];
+    return timeStore;
   }
 )(
   Date,
   globalThis.setInterval,
   globalThis.clearInterval,
-  createStore,
+  createMutable,
   onCleanup
 ) as UseTimeHook;
