@@ -20,6 +20,7 @@ import type {
   CreateMutable,
   RequireAtLeastOne,
   AutoClearableListeners,
+  Writeable,
 } from '../../types';
 
 type UseStopwatchHookArgs = {
@@ -122,17 +123,23 @@ export const useStopwatch = (
     }
     stopwatchTimer.value = args.initialMilliseconds;
 
+    const listenerArgs: Writeable<UseStopwatchHookListenerArgs> = {
+      milliseconds: stopwatchStore.milliseconds,
+      seconds: stopwatchStore.seconds,
+      minutes: stopwatchStore.minutes,
+      value: stopwatchStore.value,
+      isRunning: stopwatchStore.isRunning,
+    };
+
     /* ----------------- register start listeners ----------------- */
     stopwatchTimer.onStart(() => {
       stopwatchStore.isRunning = stopwatchTimer.isRunning;
 
-      const listenerArgs: UseStopwatchHookListenerArgs = {
-        milliseconds: stopwatchStore.milliseconds,
-        seconds: stopwatchStore.seconds,
-        minutes: stopwatchStore.minutes,
-        value: stopwatchStore.value,
-        isRunning: stopwatchStore.isRunning,
-      };
+      listenerArgs.milliseconds = stopwatchStore.milliseconds;
+      listenerArgs.seconds = stopwatchStore.seconds;
+      listenerArgs.minutes = stopwatchStore.minutes;
+      listenerArgs.value = stopwatchStore.value;
+      listenerArgs.isRunning = stopwatchStore.isRunning;
 
       if (startListeners.length === 1) {
         startListeners[0](listenerArgs);
@@ -150,13 +157,11 @@ export const useStopwatch = (
     stopwatchTimer.onStop(() => {
       stopwatchStore.isRunning = stopwatchTimer.isRunning;
 
-      const listenerArgs: UseStopwatchHookListenerArgs = {
-        milliseconds: stopwatchStore.milliseconds,
-        seconds: stopwatchStore.seconds,
-        minutes: stopwatchStore.minutes,
-        value: stopwatchStore.value,
-        isRunning: stopwatchStore.isRunning,
-      };
+      listenerArgs.milliseconds = stopwatchStore.milliseconds;
+      listenerArgs.seconds = stopwatchStore.seconds;
+      listenerArgs.minutes = stopwatchStore.minutes;
+      listenerArgs.value = stopwatchStore.value;
+      listenerArgs.isRunning = stopwatchStore.isRunning;
 
       if (stopListeners.length === 1) {
         stopListeners[0](listenerArgs);
@@ -178,13 +183,11 @@ export const useStopwatch = (
       stopwatchStore.value = 0;
       stopwatchStore.isRunning = stopwatchTimer.isRunning;
 
-      const listenerArgs: UseStopwatchHookListenerArgs = {
-        milliseconds: stopwatchStore.milliseconds,
-        seconds: stopwatchStore.seconds,
-        minutes: stopwatchStore.minutes,
-        value: stopwatchStore.value,
-        isRunning: stopwatchStore.isRunning,
-      };
+      listenerArgs.milliseconds = stopwatchStore.milliseconds;
+      listenerArgs.seconds = stopwatchStore.seconds;
+      listenerArgs.minutes = stopwatchStore.minutes;
+      listenerArgs.value = stopwatchStore.value;
+      listenerArgs.isRunning = stopwatchStore.isRunning;
 
       if (resetListeners.length === 1) {
         resetListeners[0](listenerArgs);
@@ -210,13 +213,11 @@ export const useStopwatch = (
         stopwatchStore.reset();
       }
 
-      const listenerArgs: UseStopwatchHookListenerArgs = {
-        milliseconds: stopwatchStore.milliseconds,
-        seconds: stopwatchStore.seconds,
-        minutes: stopwatchStore.minutes,
-        value: stopwatchStore.value,
-        isRunning: stopwatchStore.isRunning,
-      };
+      listenerArgs.milliseconds = stopwatchStore.milliseconds;
+      listenerArgs.seconds = stopwatchStore.seconds;
+      listenerArgs.minutes = stopwatchStore.minutes;
+      listenerArgs.value = stopwatchStore.value;
+      listenerArgs.isRunning = stopwatchStore.isRunning;
 
       if (updateListeners.length === 1) {
         updateListeners[0](listenerArgs);
