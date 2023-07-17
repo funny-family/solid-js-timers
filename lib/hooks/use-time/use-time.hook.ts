@@ -1,25 +1,33 @@
 import { onCleanup } from 'solid-js';
 import { createMutable } from 'solid-js/store';
+import {
+  getLocaleTimeString,
+  getHours,
+  getAmPm,
+  type GetLocaleTimeStringFunction,
+  type GetHoursFunction,
+  type GetAmPmFunction,
+} from './utils';
 import type {
   WindowSetInterval,
   WindowClearInterval,
   OnCleanupFunction,
   CreateMutable,
   RequireAtLeastOne,
+  AutoClearableListeners,
 } from '../../types';
 
-type UseTimeHookArgFormat = '24-hour' | '12-hour';
+export type UseTimeHookArgFormat = '24-hour' | '12-hour';
 
-type UseTimeHookArgs = { format?: UseTimeHookArgFormat };
+type UseTimeHookArgs = {
+  format?: UseTimeHookArgFormat;
+} & Partial<AutoClearableListeners>;
 
-type UseTimeHookHookListenerArgs = Pick<
-  UseTimeHookReturnValue,
-  'seconds' | 'minutes' | 'hours' | 'ampm'
+type UseTimeHookHookListenerArgs = Readonly<
+  Pick<UseTimeHookReturnValue, 'seconds' | 'minutes' | 'hours' | 'ampm'>
 >;
 
-type UseTimeHookListenerCallback = (
-  args: Readonly<UseTimeHookHookListenerArgs>
-) => void;
+type UseTimeHookListenerCallback = (args: UseTimeHookHookListenerArgs) => void;
 
 type UseTimeHookListener = (callback: UseTimeHookListenerCallback) => void;
 
@@ -41,69 +49,55 @@ type UseTimeHook = (
 export const useTime = (
   (
     Date: DateConstructor,
+    getLocaleTimeString: GetLocaleTimeStringFunction,
+    getHours: GetHoursFunction,
+    getAmPm: GetAmPmFunction,
     setInterval: WindowSetInterval,
     clearInterval: WindowClearInterval,
     createMutable: CreateMutable,
     onCleanup: OnCleanupFunction
   ) =>
-  (args: UseTimeHookArgs = {}) => {
+  (args: Required<UseTimeHookArgs> = {} as any) => {
     if (args.format == null) {
       args.format = '24-hour';
     }
-
-    const getLocaleTimeString = (Date: DateConstructor) =>
-      new Date().toLocaleTimeString('en-US', {
-        hour12: false,
-      });
-    type GetLocaleTimeStringFunction = typeof getLocaleTimeString;
-
     const date = {
       value: getLocaleTimeString(Date),
     };
     type DateValue = typeof date;
 
-    const getHours = (date: DateValue) =>
-      args.format === '12-hour'
-        ? `${+`${date.value[0]}${date.value[1]}` % 12}`.padStart(2, '0')
-        : `${date.value[0]}${date.value[1]}`;
-    type GetHoursFunction = typeof getHours;
-
-    const getAmPm = (date: DateValue) =>
-      +`${date.value[0]}${date.value[1]}` > 12 ? 'PM' : 'AM';
-    type GetAmPmFunction = typeof getAmPm;
+    const updateListeners = Array<UseTimeHookListenerCallback>();
+    type UpdateListeners = typeof updateListeners;
 
     const timeStore = createMutable<UseTimeHookReturnValue>({
       seconds: `${date.value[6]}${date.value[7]}`,
       minutes: `${date.value[3]}${date.value[4]}`,
-      hours: getHours(date),
-      ampm: getAmPm(date),
-      onUpdate: null as unknown as UseTimeHookReturnValue['onUpdate'],
+      hours: getHours(date.value, args.format),
+      ampm: getAmPm(date.value),
+      onUpdate: (callback) => {
+        updateListeners.push(callback);
+      },
     });
     type TimeStore = typeof timeStore;
 
-    const updateListeners = Array<UseTimeHookListenerCallback>();
-    type UpdateListeners = typeof updateListeners;
-    timeStore.onUpdate = (callback) => {
-      updateListeners.push(callback);
-    };
-
     const tick = (
       (
-        timeStore: TimeStore,
+        format: NonNullable<UseTimeHookArgFormat>,
         date: DateValue,
-        Date: DateConstructor,
         getLocaleTimeString: GetLocaleTimeStringFunction,
         getHours: GetHoursFunction,
         getAmPm: GetAmPmFunction,
-        updateListeners: UpdateListeners
+        updateListeners: UpdateListeners,
+        Date: DateConstructor,
+        timeStore: TimeStore
       ) =>
       () => {
         date.value = getLocaleTimeString(Date);
 
         timeStore.seconds = `${date.value[6]}${date.value[7]}`;
         timeStore.minutes = `${date.value[3]}${date.value[4]}`;
-        timeStore.hours = getHours(date);
-        timeStore.ampm = getAmPm(date);
+        timeStore.hours = getHours(date.value, format);
+        timeStore.ampm = getAmPm(date.value);
 
         const listenerArgs: UseTimeHookHookListenerArgs = {
           seconds: timeStore.seconds,
@@ -123,13 +117,14 @@ export const useTime = (
         }
       }
     )(
-      timeStore,
+      args.format,
       date,
-      Date,
       getLocaleTimeString,
       getHours,
       getAmPm,
-      updateListeners
+      updateListeners,
+      Date,
+      timeStore
     );
 
     const intervalID = setInterval(tick, 1000);
@@ -142,8 +137,11 @@ export const useTime = (
   }
 )(
   Date,
-  globalThis.setInterval,
-  globalThis.clearInterval,
+  getLocaleTimeString,
+  getHours,
+  getAmPm,
+  setInterval,
+  clearInterval,
   createMutable,
   onCleanup
 ) as UseTimeHook;
