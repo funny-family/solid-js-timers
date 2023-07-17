@@ -48,3 +48,5 @@ export type AutoStartable = {
 export type AutoClearableListeners = {
   autoClearListeners: boolean;
 };
+
+export type Writeable<T> = { -readonly [P in keyof T]: T[P] };
