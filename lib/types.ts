@@ -31,3 +31,20 @@ export type ResetListener = {
 export type UpdateListener = {
   onUpdate: (callback: () => void) => void;
 };
+
+export type RequireAtLeastOne<T> = {
+  [K in keyof T]-?: Required<Pick<T, K>> &
+    Partial<Pick<T, Exclude<keyof T, K>>>;
+}[keyof T];
+
+export type Listener<T extends any> = (
+  callback: (args: Readonly<T>) => void
+) => void;
+
+export type AutoStartable = {
+  autostart: boolean;
+};
+
+export type AutoClearableListeners = {
+  autoClearListeners: boolean;
+};
