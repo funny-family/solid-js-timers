@@ -1,2 +1,2 @@
 export { useStopwatch } from './use-stopwatch.hook';
-export * from './stopwatch-timer.class';
+export * from './stopwatch-timer';

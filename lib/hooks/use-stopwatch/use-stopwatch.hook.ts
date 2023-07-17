@@ -4,7 +4,7 @@ import {
   type StopwatchTimerInterface,
   StopwatchTimer,
   StopwatchTimerConstructor,
-} from './stopwatch-timer.class';
+} from './stopwatch-timer';
 import {
   type CalculateMillisecondsFunction,
   type CalculateSecondsFunction,
