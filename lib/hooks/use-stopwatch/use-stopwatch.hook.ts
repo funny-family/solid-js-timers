@@ -1,10 +1,10 @@
 import { onCleanup, onMount } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import {
-  type StopwatchTimerInterface,
+  type StopwatchInterface,
   StopwatchTimer,
   StopwatchTimerConstructor,
-} from './stopwatch-timer';
+} from './stopwatch';
 import {
   type CalculateMillisecondsFunction,
   type CalculateSecondsFunction,
@@ -21,13 +21,15 @@ import type {
   RequireAtLeastOne,
   AutoClearableListeners,
   Writeable,
+  AutoClearableInterval,
+  AutoStartable,
 } from '../../types';
 
 type UseStopwatchHookArgs = {
   initialMilliseconds?: number;
-  autoStart?: boolean;
-  autoClearInterval?: boolean;
-} & Partial<AutoClearableListeners>;
+} & Partial<AutoStartable> &
+  Partial<AutoClearableListeners> &
+  Partial<AutoClearableInterval>;
 
 type UseStopwatchHookListenerArgs = Readonly<
   Pick<
@@ -54,7 +56,7 @@ type UseStopwatchHookReturnValue = {
   onStop: UseStopwatchHookListener;
   onReset: UseStopwatchHookListener;
   onUpdate: UseStopwatchHookListener;
-} & Pick<StopwatchTimerInterface, 'start' | 'stop' | 'reset'>;
+} & Pick<StopwatchInterface, 'start' | 'stop' | 'reset'>;
 
 type UseStopwatchHook = (
   args?: RequireAtLeastOne<UseStopwatchHookArgs>
@@ -72,8 +74,8 @@ export const useStopwatch = (
     onCleanup: OnCleanupFunction
   ) =>
   (args: Required<UseStopwatchHookArgs> = {} as any) => {
-    if (args.autoStart == null) {
-      args.autoStart = false;
+    if (args.autostart == null) {
+      args.autostart = false;
     }
 
     if (args.autoClearInterval == null) {
@@ -232,7 +234,7 @@ export const useStopwatch = (
     /* ----------------- register update listeners ----------------- */
 
     onMount(() => {
-      if (args.autoStart) {
+      if (args.autostart) {
         stopwatchStore.start();
       }
     });
