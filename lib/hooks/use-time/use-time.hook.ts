@@ -61,6 +61,11 @@ export const useTime = (
     if (args.format == null) {
       args.format = '24-hour';
     }
+
+    if (args.autoClearListeners == null) {
+      args.autoClearListeners = true;
+    }
+
     const date = {
       value: getLocaleTimeString(Date),
     };
@@ -130,7 +135,9 @@ export const useTime = (
     const intervalID = setInterval(tick, 1000);
 
     onCleanup(() => {
-      clearInterval(intervalID);
+      if (args.autoClearListeners && intervalID != null) {
+        clearInterval(intervalID);
+      }
     });
 
     return timeStore;
