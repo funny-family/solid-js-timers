@@ -49,4 +49,8 @@ export type AutoClearableListeners = {
   autoClearListeners: boolean;
 };
 
+export type AutoClearableInterval = {
+  autoClearInterval: boolean;
+};
+
 export type Writeable<T> = { -readonly [P in keyof T]: T[P] };
