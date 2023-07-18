@@ -62,7 +62,7 @@ export class StopwatchTimer implements StopwatchInterface {
       this.#onStopCallback();
     }
 
-    this.#clearTimerInterval();
+    this.#clearInterval();
   };
 
   reset: StopwatchInterface['reset'] = () => {
@@ -76,7 +76,7 @@ export class StopwatchTimer implements StopwatchInterface {
       this.#onResetCallback();
     }
 
-    this.#clearTimerInterval();
+    this.#clearInterval();
 
     this.value = 0;
   };
@@ -123,7 +123,7 @@ export class StopwatchTimer implements StopwatchInterface {
     }
   };
 
-  #clearTimerInterval = () => {
+  #clearInterval = () => {
     if (this.#intervalID != null) {
       (clearInterval as WindowClearInterval)(this.#intervalID as number);
       this.#intervalID = null;
