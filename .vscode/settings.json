@@ -28,6 +28,7 @@
     "idel",
     "Resetable",
     "Startable",
-    "Stopable"
+    "Stopable",
+    "Timespan"
   ]
 }
