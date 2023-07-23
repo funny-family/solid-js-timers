@@ -16,11 +16,12 @@ export interface StopwatchInterface {
 }
 
 export type StopwatchConstructor = {
-  new (delay?: number): StopwatchTimer;
+  new (initialMilliseconds?: number, delay?: number): StopwatchTimer;
 };
 
 export class StopwatchTimer implements StopwatchInterface {
-  constructor(delay?: number) {
+  constructor(initialMilliseconds?: number, delay?: number) {
+    this.value = initialMilliseconds || 0;
     this.#delay = delay || 1;
   }
 
@@ -35,6 +36,7 @@ export class StopwatchTimer implements StopwatchInterface {
     if (this.#state === 'running') {
       return;
     }
+
     this.#state = 'running';
     this.isRunning = true;
 
@@ -55,30 +57,29 @@ export class StopwatchTimer implements StopwatchInterface {
     if (this.isRunning === false) {
       return;
     }
+
     this.#state = 'stopped';
     this.isRunning = false;
+    this.#clearInterval();
 
     if (this.#onStopCallback != null) {
       this.#onStopCallback();
     }
-
-    this.#clearInterval();
   };
 
   reset: StopwatchInterface['reset'] = () => {
-    if (this.#state === 'idel') {
+    if (this.#state === 'idel' && this.value === 0) {
       return;
     }
+
     this.#state = 'idel';
     this.isRunning = false;
+    this.value = 0;
+    this.#clearInterval();
 
     if (this.#onResetCallback != null) {
       this.#onResetCallback();
     }
-
-    this.#clearInterval();
-
-    this.value = 0;
   };
 
   onStart: StopwatchInterface['onStart'] = (callback) => {
@@ -130,5 +131,3 @@ export class StopwatchTimer implements StopwatchInterface {
     }
   };
 }
-
-// window.StopwatchTimer = StopwatchTimer

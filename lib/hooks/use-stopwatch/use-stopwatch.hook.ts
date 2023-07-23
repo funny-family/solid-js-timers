@@ -1,10 +1,6 @@
 import { onCleanup, onMount } from 'solid-js';
 import { createMutable } from 'solid-js/store';
-import {
-  type StopwatchInterface,
-  StopwatchTimer,
-  StopwatchTimerConstructor,
-} from './stopwatch';
+import { type StopwatchConstructor, StopwatchTimer } from './stopwatch';
 import {
   type CalculateMillisecondsFunction,
   type CalculateSecondsFunction,
@@ -12,59 +8,25 @@ import {
   calculateMilliseconds,
   calculateSeconds,
   calculateMinutes,
-} from './utils';
+} from './use-stopwatch.utils';
+import type {
+  UseStopwatchHook,
+  UseStopwatchHookArgs,
+  UseStopwatchHookListenerArgs,
+  UseStopwatchHookListenerCallback,
+  UseStopwatchHookReturnValue,
+} from './use-stopwatch.types';
 import type {
   OnCleanupFunction,
   OnMountFunction,
   WindowClearInterval,
   CreateMutable,
-  RequireAtLeastOne,
-  AutoClearableListeners,
   Writeable,
-  AutoClearableInterval,
-  AutoStartable,
 } from '../../types';
-
-type UseStopwatchHookArgs = {
-  initialMilliseconds?: number;
-} & Partial<AutoStartable> &
-  Partial<AutoClearableListeners> &
-  Partial<AutoClearableInterval>;
-
-type UseStopwatchHookListenerArgs = Readonly<
-  Pick<
-    UseStopwatchHookReturnValue,
-    'milliseconds' | 'seconds' | 'minutes' | 'value' | 'isRunning'
-  >
->;
-
-type UseStopwatchHookListenerCallback = (
-  args: UseStopwatchHookListenerArgs
-) => void;
-
-type UseStopwatchHookListener = (
-  callback: UseStopwatchHookListenerCallback
-) => void;
-
-type UseStopwatchHookReturnValue = {
-  milliseconds: string;
-  seconds: string;
-  minutes: string;
-  value: number;
-  isRunning: boolean;
-  onStart: UseStopwatchHookListener;
-  onStop: UseStopwatchHookListener;
-  onReset: UseStopwatchHookListener;
-  onUpdate: UseStopwatchHookListener;
-} & Pick<StopwatchInterface, 'start' | 'stop' | 'reset'>;
-
-type UseStopwatchHook = (
-  args?: RequireAtLeastOne<UseStopwatchHookArgs>
-) => Readonly<UseStopwatchHookReturnValue>;
 
 export const useStopwatch = (
   (
-    StopwatchTimer: StopwatchTimerConstructor,
+    StopwatchTimer: StopwatchConstructor,
     calculateMilliseconds: CalculateMillisecondsFunction,
     calculateSeconds: CalculateSecondsFunction,
     calculateMinutes: CalculateMinutesFunction,
@@ -74,20 +36,20 @@ export const useStopwatch = (
     onCleanup: OnCleanupFunction
   ) =>
   (args: Required<UseStopwatchHookArgs> = {} as any) => {
-    if (args.autostart == null) {
-      args.autostart = false;
+    if (args.initialMilliseconds == null) {
+      args.initialMilliseconds = 0;
     }
 
-    if (args.autoClearInterval == null) {
-      args.autoClearInterval = true;
+    if (args.autostart == null) {
+      args.autostart = false;
     }
 
     if (args.autoClearListeners == null) {
       args.autoClearListeners = true;
     }
 
-    if (args.initialMilliseconds == null) {
-      args.initialMilliseconds = 0;
+    if (args.autoClearInterval == null) {
+      args.autoClearInterval = true;
     }
 
     let startListeners = Array<UseStopwatchHookListenerCallback>();
@@ -95,12 +57,12 @@ export const useStopwatch = (
     let resetListeners = Array<UseStopwatchHookListenerCallback>();
     let updateListeners = Array<UseStopwatchHookListenerCallback>();
 
-    const stopwatchTimer = new StopwatchTimer(90);
+    const stopwatchTimer = new StopwatchTimer(args.initialMilliseconds, 90);
     const stopwatchStore = createMutable<UseStopwatchHookReturnValue>({
-      milliseconds: '00',
-      seconds: '00',
-      minutes: '00',
-      value: 0,
+      milliseconds: calculateMilliseconds(stopwatchTimer.value),
+      seconds: calculateSeconds(stopwatchTimer.value),
+      minutes: calculateMinutes(stopwatchTimer.value),
+      value: stopwatchTimer.value,
       isRunning: false,
       start: stopwatchTimer.start,
       stop: stopwatchTimer.stop,
@@ -235,16 +197,16 @@ export const useStopwatch = (
 
     onMount(() => {
       if (args.autostart) {
-        stopwatchStore.start();
+        stopwatchTimer.start();
       }
     });
 
     onCleanup(() => {
       if (args.autoClearListeners) {
-        startListeners = [];
-        stopListeners = [];
-        resetListeners = [];
-        updateListeners = [];
+        startListeners = Array();
+        stopListeners = Array();
+        resetListeners = Array();
+        updateListeners = Array();
       }
 
       if (args.autoClearInterval && stopwatchTimer.intervalID != null) {
