@@ -36,6 +36,7 @@ export class CurrentTime implements CurrentTimeInterface {
 
     this.isRunning = true;
     this.#state = 'running';
+    // this.date.setTime(this.#getCurrentMilliseconds() );
 
     if (this.#onStartCallback != null) {
       this.#onStartCallback();

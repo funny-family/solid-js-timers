@@ -1,154 +1,204 @@
-import { onCleanup } from 'solid-js';
+import { type CurrentTimeConstructor, CurrentTime } from './current-time';
+import { onMount, onCleanup } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import {
-  getLocaleTimeString,
-  getHours,
-  getAmPm,
+  type CalculateHoursFunction,
   type GetLocaleTimeStringFunction,
-  type GetHoursFunction,
-  type GetAmPmFunction,
-} from './utils';
+  calculateHours,
+  getLocaleTimeString,
+} from './use-time.utils';
 import type {
-  WindowSetInterval,
-  WindowClearInterval,
+  UseTimeHook,
+  UseTimeHookArgs,
+  UseTimeHookHookListenerArgs,
+  UseTimeHookListenerCallback,
+  UseTimeHookReturnValue,
+} from './use-time.types';
+import type {
   OnCleanupFunction,
   CreateMutable,
-  RequireAtLeastOne,
-  AutoClearableListeners,
+  Writeable,
+  OnMountFunction,
 } from '../../types';
-
-export type UseTimeHookArgFormat = '24-hour' | '12-hour';
-
-type UseTimeHookArgs = {
-  format?: UseTimeHookArgFormat;
-} & Partial<AutoClearableListeners>;
-
-type UseTimeHookHookListenerArgs = Readonly<
-  Pick<UseTimeHookReturnValue, 'seconds' | 'minutes' | 'hours' | 'ampm'>
->;
-
-type UseTimeHookListenerCallback = (args: UseTimeHookHookListenerArgs) => void;
-
-type UseTimeHookListener = (callback: UseTimeHookListenerCallback) => void;
-
-type UseTimeHookReturnValue = {
-  seconds: string;
-  minutes: string;
-  hours: string;
-  ampm: string;
-  onUpdate: UseTimeHookListener;
-};
-
-type UseTimeHook = (
-  args?: RequireAtLeastOne<UseTimeHookArgs>
-) => Readonly<UseTimeHookReturnValue>;
 
 /**
  * @description Displays current time
  */
 export const useTime = (
   (
-    Date: DateConstructor,
+    CurrentTime: CurrentTimeConstructor,
+    calculateHours: CalculateHoursFunction,
     getLocaleTimeString: GetLocaleTimeStringFunction,
-    getHours: GetHoursFunction,
-    getAmPm: GetAmPmFunction,
-    setInterval: WindowSetInterval,
-    clearInterval: WindowClearInterval,
     createMutable: CreateMutable,
+    onMount: OnMountFunction,
     onCleanup: OnCleanupFunction
   ) =>
   (args: Required<UseTimeHookArgs> = {} as any) => {
-    if (args.format == null) {
-      args.format = '24-hour';
+    if (args.hourCycle == null) {
+      args.hourCycle = 'h24';
     }
 
     if (args.autoClearListeners == null) {
       args.autoClearListeners = true;
     }
 
-    const date = {
-      value: getLocaleTimeString(Date),
-    };
-    type DateValue = typeof date;
+    if (args.autoClearInterval == null) {
+      args.autoClearInterval = true;
+    }
 
-    const updateListeners = Array<UseTimeHookListenerCallback>();
-    type UpdateListeners = typeof updateListeners;
+    let startListeners = Array<UseTimeHookListenerCallback>();
+    let stopListeners = Array<UseTimeHookListenerCallback>();
+    let updateListeners = Array<UseTimeHookListenerCallback>();
 
+    const currentTime = new CurrentTime();
+    // let localeTimeString = getLocaleTimeString(currentTime.date);
+    const localeTimeString = getLocaleTimeString(currentTime.date);
     const timeStore = createMutable<UseTimeHookReturnValue>({
-      seconds: `${date.value[6]}${date.value[7]}`,
-      minutes: `${date.value[3]}${date.value[4]}`,
-      hours: getHours(date.value, args.format),
-      ampm: getAmPm(date.value),
+      seconds: localeTimeString[6] + localeTimeString[7],
+      minutes: localeTimeString[3] + localeTimeString[4],
+      hours: calculateHours(localeTimeString, args.hourCycle, 0),
+      ampm: localeTimeString[9] + localeTimeString[10],
+      isRunning: currentTime.isRunning,
+      start: currentTime.start,
+      stop: currentTime.stop,
+      onStart: (callback) => {
+        startListeners.push(callback);
+      },
+      onStop: (callback) => {
+        stopListeners.push(callback);
+      },
       onUpdate: (callback) => {
         updateListeners.push(callback);
       },
     });
-    type TimeStore = typeof timeStore;
 
-    const tick = (
-      (
-        format: NonNullable<UseTimeHookArgFormat>,
-        date: DateValue,
-        getLocaleTimeString: GetLocaleTimeStringFunction,
-        getHours: GetHoursFunction,
-        getAmPm: GetAmPmFunction,
-        updateListeners: UpdateListeners,
-        Date: DateConstructor,
-        timeStore: TimeStore
-      ) =>
-      () => {
-        date.value = getLocaleTimeString(Date);
+    const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
+      seconds: timeStore.seconds,
+      minutes: timeStore.minutes,
+      hours: timeStore.hours,
+      ampm: timeStore.ampm,
+      isRunning: timeStore.isRunning,
+    };
 
-        timeStore.seconds = `${date.value[6]}${date.value[7]}`;
-        timeStore.minutes = `${date.value[3]}${date.value[4]}`;
-        timeStore.hours = getHours(date.value, format);
-        timeStore.ampm = getAmPm(date.value);
+    currentTime.onStart(() => {
+      // localeTimeString = getLocaleTimeString(currentTime.date);
 
-        const listenerArgs: UseTimeHookHookListenerArgs = {
-          seconds: timeStore.seconds,
-          minutes: timeStore.minutes,
-          hours: timeStore.hours,
-          ampm: timeStore.ampm,
-        };
+      timeStore.isRunning = currentTime.isRunning;
+      // console.log({ timeStore, localeTimeString });
 
-        if (updateListeners.length === 1) {
+      // const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
+      //   seconds: timeStore.seconds,
+      //   minutes: timeStore.minutes,
+      //   hours: timeStore.hours,
+      //   ampm: timeStore.ampm,
+      //   isRunning: timeStore.isRunning,
+      // };
+
+      if (startListeners.length === 1) {
+        startListeners[0](listenerArgs);
+      }
+
+      if (startListeners.length > 1) {
+        for (let i = 0; i < startListeners.length; i++) {
+          startListeners[0](listenerArgs);
+        }
+      }
+    });
+
+    currentTime.onStop(() => {
+      const localeTimeString = getLocaleTimeString(currentTime.date);
+
+      timeStore.seconds = localeTimeString[6] + localeTimeString[7];
+      timeStore.minutes = localeTimeString[3] + localeTimeString[4];
+      timeStore.hours = calculateHours(localeTimeString, args.hourCycle, 0);
+      timeStore.ampm = localeTimeString[9] + localeTimeString[10];
+      timeStore.isRunning = currentTime.isRunning;
+
+      // const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
+      //   seconds: timeStore.seconds,
+      //   minutes: timeStore.minutes,
+      //   hours: timeStore.hours,
+      //   ampm: timeStore.ampm,
+      //   isRunning: timeStore.isRunning,
+      // };
+
+      if (stopListeners.length === 1) {
+        stopListeners[0](listenerArgs);
+      }
+
+      if (stopListeners.length > 1) {
+        for (let i = 0; i < stopListeners.length; i++) {
+          stopListeners[0](listenerArgs);
+        }
+      }
+    });
+
+    currentTime.onUpdate(() => {
+      const localeTimeString = getLocaleTimeString(currentTime.date);
+
+      timeStore.seconds = localeTimeString[6] + localeTimeString[7];
+      timeStore.minutes = localeTimeString[3] + localeTimeString[4];
+      timeStore.hours = calculateHours(localeTimeString, args.hourCycle, 0);
+      timeStore.ampm = localeTimeString[9] + localeTimeString[10];
+      timeStore.isRunning = currentTime.isRunning;
+
+      // const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
+      //   seconds: timeStore.seconds,
+      //   minutes: timeStore.minutes,
+      //   hours: timeStore.hours,
+      //   ampm: timeStore.ampm,
+      //   isRunning: timeStore.isRunning,
+      // };
+
+      listenerArgs.seconds = timeStore.seconds;
+      listenerArgs.minutes = timeStore.minutes;
+      listenerArgs.hours = timeStore.hours;
+      listenerArgs.ampm = timeStore.ampm;
+      listenerArgs.isRunning = timeStore.isRunning;
+
+      if (updateListeners.length === 1) {
+        updateListeners[0](listenerArgs);
+      }
+
+      if (updateListeners.length > 1) {
+        for (let i = 0; i < updateListeners.length; i++) {
           updateListeners[0](listenerArgs);
         }
-
-        if (updateListeners.length > 1) {
-          for (let i = 0; i < updateListeners.length; i++) {
-            updateListeners[i](listenerArgs);
-          }
-        }
       }
-    )(
-      args.format,
-      date,
-      getLocaleTimeString,
-      getHours,
-      getAmPm,
-      updateListeners,
-      Date,
-      timeStore
-    );
+    });
 
-    const intervalID = setInterval(tick, 1000);
+    onMount(() => {
+      currentTime.start();
+    });
 
     onCleanup(() => {
-      if (args.autoClearListeners && intervalID != null) {
-        clearInterval(intervalID);
+      if (args.autoClearListeners) {
+        startListeners = Array();
+        stopListeners = Array();
+        updateListeners = Array();
       }
+
+      if (args.autoClearInterval && currentTime.intervalID != null) {
+        currentTime.clearInterval();
+      }
+    });
+
+    console.log({
+      timeStore,
+      listener: {
+        startListeners,
+        stopListeners,
+        updateListeners,
+      },
     });
 
     return timeStore;
   }
 )(
-  Date,
+  CurrentTime,
+  calculateHours,
   getLocaleTimeString,
-  getHours,
-  getAmPm,
-  setInterval,
-  clearInterval,
   createMutable,
+  onMount,
   onCleanup
 ) as UseTimeHook;
