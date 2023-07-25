@@ -95,7 +95,6 @@ export const useStopwatch = (
       isRunning: stopwatchStore.isRunning,
     };
 
-    /* ----------------- register start listeners ----------------- */
     stopwatchTimer.onStart(() => {
       stopwatchStore.isRunning = stopwatchTimer.isRunning;
 
@@ -115,9 +114,7 @@ export const useStopwatch = (
         }
       }
     });
-    /* ----------------- register start listeners ----------------- */
 
-    /* ----------------- register stop listeners ----------------- */
     stopwatchTimer.onStop(() => {
       stopwatchStore.isRunning = stopwatchTimer.isRunning;
 
@@ -137,9 +134,7 @@ export const useStopwatch = (
         }
       }
     });
-    /* ----------------- register stop listeners ----------------- */
 
-    /* ----------------- register reset listeners ----------------- */
     stopwatchTimer.onReset(() => {
       stopwatchStore.milliseconds = '00';
       stopwatchStore.seconds = '00';
@@ -163,9 +158,7 @@ export const useStopwatch = (
         }
       }
     });
-    /* ----------------- register reset listeners ----------------- */
 
-    /* ----------------- register update listeners ----------------- */
     stopwatchTimer.onUpdate(() => {
       stopwatchStore.milliseconds = calculateMilliseconds(stopwatchTimer.value);
       stopwatchStore.seconds = calculateSeconds(stopwatchTimer.value);
@@ -181,7 +174,6 @@ export const useStopwatch = (
       listenerArgs.seconds = stopwatchStore.seconds;
       listenerArgs.minutes = stopwatchStore.minutes;
       listenerArgs.value = stopwatchStore.value;
-      listenerArgs.isRunning = stopwatchStore.isRunning;
 
       if (updateListeners.length === 1) {
         updateListeners[0](listenerArgs);
@@ -193,7 +185,6 @@ export const useStopwatch = (
         }
       }
     });
-    /* ----------------- register update listeners ----------------- */
 
     onMount(() => {
       if (args.autostart) {
