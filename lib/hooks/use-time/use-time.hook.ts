@@ -1,6 +1,6 @@
-import { type CurrentTimeConstructor, CurrentTime } from './current-time';
 import { onMount, onCleanup } from 'solid-js';
 import { createMutable } from 'solid-js/store';
+import { type CurrentTimeConstructor, CurrentTime } from './current-time';
 import {
   type CalculateHoursFunction,
   type GetLocaleTimeStringFunction,
@@ -51,7 +51,6 @@ export const useTime = (
     let updateListeners = Array<UseTimeHookListenerCallback>();
 
     const currentTime = new CurrentTime();
-    // let localeTimeString = getLocaleTimeString(currentTime.date);
     const localeTimeString = getLocaleTimeString(currentTime.date);
     const timeStore = createMutable<UseTimeHookReturnValue>({
       seconds: localeTimeString[6] + localeTimeString[7],
@@ -72,27 +71,22 @@ export const useTime = (
       },
     });
 
-    const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
-      seconds: timeStore.seconds,
-      minutes: timeStore.minutes,
-      hours: timeStore.hours,
-      ampm: timeStore.ampm,
-      isRunning: timeStore.isRunning,
-    };
-
     currentTime.onStart(() => {
-      // localeTimeString = getLocaleTimeString(currentTime.date);
+      const localeTimeString = getLocaleTimeString(currentTime.date);
 
+      timeStore.seconds = localeTimeString[6] + localeTimeString[7];
+      timeStore.minutes = localeTimeString[3] + localeTimeString[4];
+      timeStore.hours = calculateHours(localeTimeString, args.hourCycle, 0);
+      timeStore.ampm = localeTimeString[9] + localeTimeString[10];
       timeStore.isRunning = currentTime.isRunning;
-      // console.log({ timeStore, localeTimeString });
 
-      // const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
-      //   seconds: timeStore.seconds,
-      //   minutes: timeStore.minutes,
-      //   hours: timeStore.hours,
-      //   ampm: timeStore.ampm,
-      //   isRunning: timeStore.isRunning,
-      // };
+      const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
+        seconds: timeStore.seconds,
+        minutes: timeStore.minutes,
+        hours: timeStore.hours,
+        ampm: timeStore.ampm,
+        isRunning: timeStore.isRunning,
+      };
 
       if (startListeners.length === 1) {
         startListeners[0](listenerArgs);
@@ -100,7 +94,7 @@ export const useTime = (
 
       if (startListeners.length > 1) {
         for (let i = 0; i < startListeners.length; i++) {
-          startListeners[0](listenerArgs);
+          startListeners[i](listenerArgs);
         }
       }
     });
@@ -114,13 +108,13 @@ export const useTime = (
       timeStore.ampm = localeTimeString[9] + localeTimeString[10];
       timeStore.isRunning = currentTime.isRunning;
 
-      // const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
-      //   seconds: timeStore.seconds,
-      //   minutes: timeStore.minutes,
-      //   hours: timeStore.hours,
-      //   ampm: timeStore.ampm,
-      //   isRunning: timeStore.isRunning,
-      // };
+      const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
+        seconds: timeStore.seconds,
+        minutes: timeStore.minutes,
+        hours: timeStore.hours,
+        ampm: timeStore.ampm,
+        isRunning: timeStore.isRunning,
+      };
 
       if (stopListeners.length === 1) {
         stopListeners[0](listenerArgs);
@@ -128,7 +122,7 @@ export const useTime = (
 
       if (stopListeners.length > 1) {
         for (let i = 0; i < stopListeners.length; i++) {
-          stopListeners[0](listenerArgs);
+          stopListeners[i](listenerArgs);
         }
       }
     });
@@ -140,21 +134,14 @@ export const useTime = (
       timeStore.minutes = localeTimeString[3] + localeTimeString[4];
       timeStore.hours = calculateHours(localeTimeString, args.hourCycle, 0);
       timeStore.ampm = localeTimeString[9] + localeTimeString[10];
-      timeStore.isRunning = currentTime.isRunning;
 
-      // const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
-      //   seconds: timeStore.seconds,
-      //   minutes: timeStore.minutes,
-      //   hours: timeStore.hours,
-      //   ampm: timeStore.ampm,
-      //   isRunning: timeStore.isRunning,
-      // };
-
-      listenerArgs.seconds = timeStore.seconds;
-      listenerArgs.minutes = timeStore.minutes;
-      listenerArgs.hours = timeStore.hours;
-      listenerArgs.ampm = timeStore.ampm;
-      listenerArgs.isRunning = timeStore.isRunning;
+      const listenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
+        seconds: timeStore.seconds,
+        minutes: timeStore.minutes,
+        hours: timeStore.hours,
+        ampm: timeStore.ampm,
+        isRunning: timeStore.isRunning,
+      };
 
       if (updateListeners.length === 1) {
         updateListeners[0](listenerArgs);
@@ -162,7 +149,7 @@ export const useTime = (
 
       if (updateListeners.length > 1) {
         for (let i = 0; i < updateListeners.length; i++) {
-          updateListeners[0](listenerArgs);
+          updateListeners[i](listenerArgs);
         }
       }
     });
@@ -181,15 +168,6 @@ export const useTime = (
       if (args.autoClearInterval && currentTime.intervalID != null) {
         currentTime.clearInterval();
       }
-    });
-
-    console.log({
-      timeStore,
-      listener: {
-        startListeners,
-        stopListeners,
-        updateListeners,
-      },
     });
 
     return timeStore;

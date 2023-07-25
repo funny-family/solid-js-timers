@@ -6,7 +6,7 @@ import type { UseTimeHookArgFormat } from './use-time.types';
  *
  * @example
  * calculateHours('02:32:43 PM', 'h12', 0); // '02'
- * calculateHours('02:32:43 PM', 'h24', 0); // '24'
+ * calculateHours('02:32:43 PM', 'h24', 0); // '14'
  */
 export const calculateHours = (
   localeTimeString: string,
@@ -42,9 +42,9 @@ export type CalculateHoursFunction = typeof calculateHours;
  * Get converted time string.
  *
  * @example
- * getLocaleTimeString(new Date()) // 14:30:19 PM
+ * getLocaleTimeString(new Date()) // 02:30:19 PM
  */
-export const getLocaleTimeString = (date: Date) =>
+export const getLocaleTimeString = (date: Date): string =>
   date.toLocaleTimeString('en-US', {
     hour12: true,
     second: '2-digit',
