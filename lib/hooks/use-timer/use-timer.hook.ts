@@ -118,7 +118,6 @@ export const useTimer = (
       isRunning: timerStore.isRunning,
     };
 
-    /* ----------------- register start listeners ----------------- */
     countdown.onStart(() => {
       timerStore.isRunning = countdown.isRunning;
 
@@ -141,9 +140,7 @@ export const useTimer = (
         }
       }
     });
-    /* ----------------- register start listeners ----------------- */
 
-    /* ----------------- register end listeners ----------------- */
     countdown.onEnd(() => {
       timerStore.isRunning = countdown.isRunning;
 
@@ -166,9 +163,7 @@ export const useTimer = (
         }
       }
     });
-    /* ----------------- register end listeners ----------------- */
 
-    /* ----------------- register stop listeners ----------------- */
     countdown.onStop(() => {
       timerStore.isRunning = countdown.isRunning;
 
@@ -191,9 +186,7 @@ export const useTimer = (
         }
       }
     });
-    /* ----------------- register stop listeners ----------------- */
 
-    /* ----------------- register reset listeners ----------------- */
     countdown.onReset(() => {
       console.log('reset');
 
@@ -225,9 +218,7 @@ export const useTimer = (
         }
       }
     });
-    /* ----------------- register reset listeners ----------------- */
 
-    /* ----------------- register update listeners ----------------- */
     countdown.onUpdate(() => {
       // timerStore.seconds = `${~~(
       //   (countdown.value % (1000 * 60)) /
@@ -295,7 +286,6 @@ export const useTimer = (
 
       // console.log(1111, countdown);
     });
-    /* ----------------- register update listeners ----------------- */
 
     onMount(() => {
       if (args.autostart) {
@@ -312,8 +302,8 @@ export const useTimer = (
         updateListeners = Array();
       }
 
-      if (args.autoClearInterval && countdown.intervalID != null) {
-        clearInterval(countdown.intervalID);
+      if (args.autoClearInterval) {
+        countdown.clearInterval();
       }
     });
 

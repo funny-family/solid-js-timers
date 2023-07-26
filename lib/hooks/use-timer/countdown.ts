@@ -4,11 +4,14 @@ type CountdownLister = (callback: () => void) => void;
 
 export interface CountdownInterface {
   value: number;
+  // milliseconds: number;
   intervalID: number | null;
   isRunning: boolean;
+  state: 'idel' | 'running' | 'stopped';
   start: () => void;
   stop: () => void;
   reset: () => void;
+  clearInterval: () => void;
   onStart: CountdownLister;
   onEnd: CountdownLister;
   onStop: CountdownLister;
@@ -17,26 +20,29 @@ export interface CountdownInterface {
 }
 
 export type CountdownConstructor = {
-  new (milliseconds: number): Countdown;
+  new (initialMilliseconds: number): Countdown;
 };
 
 export class Countdown implements CountdownInterface {
-  constructor(milliseconds: number) {
-    this.#milliseconds = milliseconds;
+  constructor(initialMilliseconds: number) {
+    this.#initialMilliseconds = initialMilliseconds;
+    // this.value = initialMilliseconds;
   }
 
   value: CountdownInterface['value'] = 0;
   isRunning: CountdownInterface['isRunning'] = false;
+  state: CountdownInterface['state'] = 'idel';
 
   get intervalID(): CountdownInterface['intervalID'] {
     return this.#intervalID;
   }
 
   start: CountdownInterface['start'] = () => {
-    if (this.#state === 'running') {
+    if (this.state === 'running') {
       return;
     }
-    this.#state = 'running';
+
+    this.state = 'running';
     this.isRunning = true;
 
     if (this.#onStartCallback != null) {
@@ -52,30 +58,36 @@ export class Countdown implements CountdownInterface {
     if (this.isRunning === false) {
       return;
     }
-    this.#state = 'stopped';
+
+    this.state = 'stopped';
     this.isRunning = false;
+    this.clearInterval();
 
     if (this.#onStopCallback != null) {
       this.#onStopCallback();
     }
-
-    this.#clearInterval();
   };
 
   reset: CountdownInterface['reset'] = () => {
-    if (this.#state === 'idel') {
+    if (this.state === 'idel' && this.value === 0) {
       return;
     }
-    this.#state = 'idel';
+
+    this.state = 'idel';
     this.isRunning = false;
+    this.value = 0;
+    this.clearInterval();
 
     if (this.#onResetCallback != null) {
       this.#onResetCallback();
     }
+  };
 
-    this.#clearInterval();
-
-    this.value = 0;
+  clearInterval: CountdownInterface['clearInterval'] = () => {
+    if (this.#intervalID != null) {
+      (clearInterval as WindowClearInterval)(this.#intervalID as number);
+      this.#intervalID = null;
+    }
   };
 
   onStart: CountdownInterface['onStart'] = (callback) => {
@@ -99,8 +111,7 @@ export class Countdown implements CountdownInterface {
   };
 
   #intervalID: number | null = null;
-  #state: 'idel' | 'running' | 'stopped' = 'idel';
-  #milliseconds: number = 0;
+  #initialMilliseconds: number = 0;
   #onStartCallback: Parameters<CountdownInterface['onStart']>[0] | null = null;
   #onEndCallback: Parameters<CountdownInterface['onEnd']>[0] | null = null;
   #onStopCallback: Parameters<CountdownInterface['onStop']>[0] | null = null;
@@ -110,29 +121,23 @@ export class Countdown implements CountdownInterface {
 
   #update = () => {
     if (this.value < 0) {
-      this.#clearInterval();
+      this.clearInterval();
       this.value = 0;
 
-      if (this.#onEndCallback != null && this.#state === 'running') {
+      if (this.#onEndCallback != null && this.state === 'running') {
         this.#onEndCallback();
       }
 
-      this.#state = 'idel';
+      this.state = 'idel';
 
       return;
     }
 
-    this.value = this.#milliseconds - Date.now();
+    this.value = this.#initialMilliseconds - Date.now();
+    // this.value = this.value - Date.now();
 
     if (this.#onUpdateCallback != null) {
       this.#onUpdateCallback();
-    }
-  };
-
-  #clearInterval = () => {
-    if (this.#intervalID != null) {
-      (clearInterval as WindowClearInterval)(this.#intervalID as number);
-      this.#intervalID = null;
     }
   };
 }
