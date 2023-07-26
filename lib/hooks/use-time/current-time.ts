@@ -1,32 +1,33 @@
 import type { WindowClearInterval, WindowSetInterval } from '../../types';
 
+type CurrentTimeListenerCallback = () => void;
+type CurrentTimeListener = (callback: CurrentTimeListenerCallback) => void;
+
 export interface CurrentTimeInterface {
   isRunning: boolean;
-  intervalID: number | null;
   date: Date;
   start: () => void;
   stop: () => void;
   clearInterval: () => void;
-  onStart: (callback: () => void) => void;
-  onStop: (callback: () => void) => void;
-  onUpdate: (callback: () => void) => void;
+  onStart: CurrentTimeListener;
+  onStop: CurrentTimeListener;
+  onUpdate: CurrentTimeListener;
 }
 
-type C = {
+type CurrentTimeConstructorArguments = {
   updateFrequency?: number;
 };
 
 export type CurrentTimeConstructor = {
-  new (args?: C): CurrentTimeInterface;
+  new (args?: CurrentTimeConstructorArguments): CurrentTimeInterface;
 };
 
 export class CurrentTime implements CurrentTimeInterface {
-  constructor(args: C = {}) {
+  constructor(args: CurrentTimeConstructorArguments = {}) {
     this.#updateFrequency = args.updateFrequency || 100;
   }
 
   isRunning: CurrentTimeInterface['isRunning'] = false;
-  intervalID: CurrentTimeInterface['intervalID'] = null;
   date: CurrentTimeInterface['date'] = new Date();
 
   start: CurrentTimeInterface['start'] = () => {
@@ -42,8 +43,8 @@ export class CurrentTime implements CurrentTimeInterface {
       this.#onStartCallback();
     }
 
-    if (this.intervalID == null) {
-      this.intervalID = (setInterval as WindowSetInterval)(
+    if (this.#intervalID == null) {
+      this.#intervalID = (setInterval as WindowSetInterval)(
         this.#update,
         this.#updateFrequency
       );
@@ -65,9 +66,9 @@ export class CurrentTime implements CurrentTimeInterface {
   };
 
   clearInterval: CurrentTimeInterface['clearInterval'] = () => {
-    if (this.intervalID != null) {
-      (clearInterval as WindowClearInterval)(this.intervalID as number);
-      this.intervalID = null;
+    if (this.#intervalID != null) {
+      (clearInterval as WindowClearInterval)(this.#intervalID as number);
+      this.#intervalID = null;
     }
   };
 
@@ -85,11 +86,10 @@ export class CurrentTime implements CurrentTimeInterface {
 
   #updateFrequency: number = 0;
   #state: 'idel' | 'running' | 'stopped' = 'idel';
-  #onStartCallback: Parameters<CurrentTimeInterface['onStart']>[0] | null =
-    null;
-  #onStopCallback: Parameters<CurrentTimeInterface['onStop']>[0] | null = null;
-  #onUpdateCallback: Parameters<CurrentTimeInterface['onUpdate']>[0] | null =
-    null;
+  #intervalID: null | number = null;
+  #onStartCallback: CurrentTimeListenerCallback | null = null;
+  #onStopCallback: CurrentTimeListenerCallback | null = null;
+  #onUpdateCallback: CurrentTimeListenerCallback | null = null;
 
   #update: () => void = () => {
     this.date.setTime(this.#getCurrentMilliseconds());

@@ -165,7 +165,7 @@ export const useTime = (
         updateListeners = Array();
       }
 
-      if (args.autoClearInterval && currentTime.intervalID != null) {
+      if (args.autoClearInterval) {
         currentTime.clearInterval();
       }
     });
