@@ -1,14 +1,15 @@
 import type { WindowClearInterval, WindowSetInterval } from '../../types';
 
-type StopwatchListener = (callback: () => void) => void;
+type StopwatchListenerCallback = () => void;
+type StopwatchListener = (callback: StopwatchListenerCallback) => void;
 
 export interface StopwatchInterface {
   value: number;
-  intervalID: number | null;
   isRunning: boolean;
   start: () => void;
   stop: () => void;
   reset: () => void;
+  clearInterval: () => void;
   onStart: StopwatchListener;
   onStop: StopwatchListener;
   onReset: StopwatchListener;
@@ -27,10 +28,6 @@ export class StopwatchTimer implements StopwatchInterface {
 
   value: StopwatchInterface['value'] = 1;
   isRunning: StopwatchInterface['isRunning'] = false;
-
-  get intervalID(): StopwatchInterface['intervalID'] {
-    return this.#intervalID;
-  }
 
   start: StopwatchInterface['start'] = () => {
     if (this.#state === 'running') {
@@ -60,7 +57,7 @@ export class StopwatchTimer implements StopwatchInterface {
 
     this.#state = 'stopped';
     this.isRunning = false;
-    this.#clearInterval();
+    this.clearInterval();
 
     if (this.#onStopCallback != null) {
       this.#onStopCallback();
@@ -75,10 +72,17 @@ export class StopwatchTimer implements StopwatchInterface {
     this.#state = 'idel';
     this.isRunning = false;
     this.value = 0;
-    this.#clearInterval();
+    this.clearInterval();
 
     if (this.#onResetCallback != null) {
       this.#onResetCallback();
+    }
+  };
+
+  clearInterval: StopwatchInterface['clearInterval'] = () => {
+    if (this.#intervalID != null) {
+      (clearInterval as WindowClearInterval)(this.#intervalID as number);
+      this.#intervalID = null;
     }
   };
 
@@ -102,13 +106,12 @@ export class StopwatchTimer implements StopwatchInterface {
   #offset: number = 0;
   #intervalID: number | null = null;
   #state: 'idel' | 'running' | 'stopped' = 'idel';
-  #onStartCallback: Parameters<StopwatchInterface['onStart']>[0] | null = null;
-  #onStopCallback: Parameters<StopwatchInterface['onStop']>[0] | null = null;
-  #onResetCallback: Parameters<StopwatchInterface['onReset']>[0] | null = null;
-  #onUpdateCallback: Parameters<StopwatchInterface['onUpdate']>[0] | null =
-    null;
+  #onStartCallback: StopwatchListenerCallback | null = null;
+  #onStopCallback: StopwatchListenerCallback | null = null;
+  #onResetCallback: StopwatchListenerCallback | null = null;
+  #onUpdateCallback: StopwatchListenerCallback | null = null;
 
-  get #delta() {
+  get #delta(): number {
     const now = Date.now();
     const newDelta = now - this.#offset;
     this.#offset = now;
@@ -116,18 +119,11 @@ export class StopwatchTimer implements StopwatchInterface {
     return newDelta;
   }
 
-  #update = () => {
+  #update: () => void = () => {
     this.value += this.#delta;
 
     if (this.#onUpdateCallback != null) {
       this.#onUpdateCallback();
-    }
-  };
-
-  #clearInterval = () => {
-    if (this.#intervalID != null) {
-      (clearInterval as WindowClearInterval)(this.#intervalID as number);
-      this.#intervalID = null;
     }
   };
 }

@@ -19,7 +19,6 @@ import type {
 import type {
   OnCleanupFunction,
   OnMountFunction,
-  WindowClearInterval,
   CreateMutable,
   Writeable,
 } from '../../types';
@@ -30,7 +29,6 @@ export const useStopwatch = (
     calculateMilliseconds: CalculateMillisecondsFunction,
     calculateSeconds: CalculateSecondsFunction,
     calculateMinutes: CalculateMinutesFunction,
-    clearInterval: WindowClearInterval,
     createMutable: CreateMutable,
     onMount: OnMountFunction,
     onCleanup: OnCleanupFunction
@@ -200,8 +198,8 @@ export const useStopwatch = (
         updateListeners = Array();
       }
 
-      if (args.autoClearInterval && stopwatchTimer.intervalID != null) {
-        clearInterval(stopwatchTimer.intervalID);
+      if (args.autoClearInterval) {
+        stopwatchTimer.clearInterval();
       }
     });
 
@@ -212,7 +210,6 @@ export const useStopwatch = (
   calculateMilliseconds,
   calculateSeconds,
   calculateMinutes,
-  globalThis.clearInterval,
   createMutable,
   onMount,
   onCleanup
