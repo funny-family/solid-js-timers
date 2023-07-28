@@ -4,7 +4,7 @@ type StopwatchListenerCallback = () => void;
 type StopwatchListener = (callback: StopwatchListenerCallback) => void;
 
 export interface StopwatchInterface {
-  value: number;
+  milliseconds: number;
   isRunning: boolean;
   start: () => void;
   stop: () => void;
@@ -17,16 +17,16 @@ export interface StopwatchInterface {
 }
 
 export type StopwatchConstructor = {
-  new (initialMilliseconds?: number, delay?: number): StopwatchTimer;
+  new (initialMilliseconds?: number, delay?: number): Stopwatch;
 };
 
-export class StopwatchTimer implements StopwatchInterface {
+export class Stopwatch implements StopwatchInterface {
   constructor(initialMilliseconds?: number, delay?: number) {
-    this.value = initialMilliseconds || 0;
+    this.milliseconds = initialMilliseconds || 0;
     this.#delay = delay || 1;
   }
 
-  value: StopwatchInterface['value'] = 1;
+  milliseconds: StopwatchInterface['milliseconds'] = 1;
   isRunning: StopwatchInterface['isRunning'] = false;
 
   start: StopwatchInterface['start'] = () => {
@@ -65,13 +65,13 @@ export class StopwatchTimer implements StopwatchInterface {
   };
 
   reset: StopwatchInterface['reset'] = () => {
-    if (this.#state === 'idel' && this.value === 0) {
+    if (this.#state === 'idel' && this.milliseconds === 0) {
       return;
     }
 
     this.#state = 'idel';
     this.isRunning = false;
-    this.value = 0;
+    this.milliseconds = 0;
     this.clearInterval();
 
     if (this.#onResetCallback != null) {
@@ -120,7 +120,7 @@ export class StopwatchTimer implements StopwatchInterface {
   }
 
   #update: () => void = () => {
-    this.value += this.#delta;
+    this.milliseconds += this.#delta;
 
     if (this.#onUpdateCallback != null) {
       this.#onUpdateCallback();

@@ -9,13 +9,28 @@ import { type StopwatchInterface } from './stopwatch';
 export type UseStopwatchHookArgs = {
   initialMilliseconds?: number;
 } & Partial<AutoStartable> &
-  Partial<AutoClearableListeners> &
-  Partial<AutoClearableInterval>;
+  Partial<AutoClearableInterval> & {
+    autoClearTimer?: boolean;
+  } & Partial<AutoClearableListeners> & {
+    autoClearListersArgs?: boolean;
+  } & {
+    autoClearStore?: boolean;
+  };
 
 export type UseStopwatchHookListenerArgs = Readonly<
   Pick<
     UseStopwatchHookReturnValue,
-    'milliseconds' | 'seconds' | 'minutes' | 'value' | 'isRunning'
+    /* values as numbers */
+    | 'millisecondsAsString'
+    | 'secondsAsString'
+    | 'minutesAsString'
+    /* values as numbers */
+    /* values as numbers */
+    | 'millisecondsAsNumber'
+    | 'secondsAsNumber'
+    | 'minutesAsNumber'
+    | 'isRunning'
+    /* values as numbers */
   >
 >;
 
@@ -28,11 +43,24 @@ export type UseStopwatchHookListener = (
 ) => void;
 
 export type UseStopwatchHookReturnValue = {
-  milliseconds: string;
-  seconds: string;
-  minutes: string;
-  value: number;
+  // milliseconds: string;
+  // seconds: string;
+  // minutes: string;
+
+  /* values as stings */
+  millisecondsAsString: string;
+  secondsAsString: string;
+  minutesAsString: string;
+  /* values as stings */
+
+  /* values as numbers */
+  millisecondsAsNumber: number;
+  secondsAsNumber: number;
+  minutesAsNumber: number;
+  /* values as numbers */
+
   isRunning: boolean;
+
   onStart: UseStopwatchHookListener;
   onStop: UseStopwatchHookListener;
   onReset: UseStopwatchHookListener;
