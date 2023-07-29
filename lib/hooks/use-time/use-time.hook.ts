@@ -6,6 +6,8 @@ import {
   type GetLocaleTimeStringFunction,
   calculateHours,
   getLocaleTimeString,
+  getCurrentLocale,
+  getAMPM,
 } from './use-time.utils';
 import type {
   UseTimeHook,
@@ -34,8 +36,12 @@ export const useTime = (
     onCleanup: OnCleanupFunction
   ) =>
   (args: Required<UseTimeHookArgs> = {} as any) => {
-    if (args.hourCycle == null) {
-      args.hourCycle = 'h24';
+    if (args.timeStringLocales == null) {
+      args.timeStringLocales = getCurrentLocale();
+    }
+
+    if (args.timeStringOptions == null) {
+      args.timeStringOptions = {};
     }
 
     if (args.autoClearInterval == null) {
@@ -63,13 +69,20 @@ export const useTime = (
     let updateListeners = Array<UseTimeHookListenerCallback>();
 
     let currentTime = new CurrentTime();
-    const localeTimeString = getLocaleTimeString(currentTime.date);
     let timeStore = createMutable<UseTimeHookReturnValue>({
-      seconds: localeTimeString[6] + localeTimeString[7],
-      minutes: localeTimeString[3] + localeTimeString[4],
-      hours: calculateHours(localeTimeString, args.hourCycle, 0),
+      utcSeconds: currentTime.date.getUTCSeconds(),
+      utcMinutes: currentTime.date.getUTCMinutes(),
+      utcHours: currentTime.date.getUTCHours(),
 
-      ampm: localeTimeString[9] + localeTimeString[10],
+      localSeconds: currentTime.date.getSeconds(),
+      localMinutes: currentTime.date.getMinutes(),
+      localHours: currentTime.date.getHours(),
+
+      localeTimeString: currentTime.date.toLocaleTimeString(
+        args.timeStringLocales,
+        args.timeStringOptions
+      ),
+      ampm: getAMPM(currentTime.date),
       isRunning: currentTime.isRunning,
 
       start: currentTime.start,
@@ -87,41 +100,68 @@ export const useTime = (
     });
 
     let startListenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
-      seconds: timeStore.seconds,
-      minutes: timeStore.minutes,
-      hours: timeStore.hours,
+      utcSeconds: timeStore.utcSeconds,
+      utcMinutes: timeStore.utcMinutes,
+      utcHours: timeStore.utcHours,
+
+      localSeconds: timeStore.localSeconds,
+      localMinutes: timeStore.localMinutes,
+      localHours: timeStore.localHours,
+
+      localeTimeString: timeStore.localeTimeString,
       ampm: timeStore.ampm,
       isRunning: timeStore.isRunning,
     };
 
     let stopListenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
-      seconds: timeStore.seconds,
-      minutes: timeStore.minutes,
-      hours: timeStore.hours,
+      utcSeconds: timeStore.utcSeconds,
+      utcMinutes: timeStore.utcMinutes,
+      utcHours: timeStore.utcHours,
+
+      localSeconds: timeStore.localSeconds,
+      localMinutes: timeStore.localMinutes,
+      localHours: timeStore.localHours,
+
+      localeTimeString: timeStore.localeTimeString,
       ampm: timeStore.ampm,
       isRunning: timeStore.isRunning,
     };
 
     let updateListenerArgs: Writeable<UseTimeHookHookListenerArgs> = {
-      seconds: timeStore.seconds,
-      minutes: timeStore.minutes,
-      hours: timeStore.hours,
+      utcSeconds: timeStore.utcSeconds,
+      utcMinutes: timeStore.utcMinutes,
+      utcHours: timeStore.utcHours,
+
+      localSeconds: timeStore.localSeconds,
+      localMinutes: timeStore.localMinutes,
+      localHours: timeStore.localHours,
+
+      localeTimeString: timeStore.localeTimeString,
       ampm: timeStore.ampm,
       isRunning: timeStore.isRunning,
     };
 
     currentTime.onStart(() => {
-      const localeTimeString = getLocaleTimeString(currentTime.date);
-
-      timeStore.seconds = localeTimeString[6] + localeTimeString[7];
-      timeStore.minutes = localeTimeString[3] + localeTimeString[4];
-      timeStore.hours = calculateHours(localeTimeString, args.hourCycle, 0);
-      timeStore.ampm = localeTimeString[9] + localeTimeString[10];
+      timeStore.utcSeconds = currentTime.date.getUTCSeconds();
+      timeStore.utcMinutes = currentTime.date.getUTCMinutes();
+      timeStore.utcHours = currentTime.date.getUTCHours();
+      timeStore.localSeconds = currentTime.date.getSeconds();
+      timeStore.localMinutes = currentTime.date.getMinutes();
+      timeStore.localHours = currentTime.date.getHours();
+      timeStore.localeTimeString = currentTime.date.toLocaleString(
+        args.timeStringLocales,
+        args.timeStringOptions
+      );
+      timeStore.ampm = getAMPM(currentTime.date);
       timeStore.isRunning = currentTime.isRunning;
 
-      startListenerArgs.seconds = timeStore.seconds;
-      startListenerArgs.minutes = timeStore.minutes;
-      startListenerArgs.hours = timeStore.hours;
+      startListenerArgs.utcSeconds = timeStore.utcSeconds;
+      startListenerArgs.utcMinutes = timeStore.utcMinutes;
+      startListenerArgs.utcHours = timeStore.utcHours;
+      startListenerArgs.localSeconds = timeStore.localSeconds;
+      startListenerArgs.localMinutes = timeStore.localMinutes;
+      startListenerArgs.localHours = timeStore.localHours;
+      startListenerArgs.localeTimeString = timeStore.localeTimeString;
       startListenerArgs.ampm = timeStore.ampm;
       startListenerArgs.isRunning = timeStore.isRunning;
 
@@ -137,17 +177,26 @@ export const useTime = (
     });
 
     currentTime.onStop(() => {
-      const localeTimeString = getLocaleTimeString(currentTime.date);
-
-      timeStore.seconds = localeTimeString[6] + localeTimeString[7];
-      timeStore.minutes = localeTimeString[3] + localeTimeString[4];
-      timeStore.hours = calculateHours(localeTimeString, args.hourCycle, 0);
-      timeStore.ampm = localeTimeString[9] + localeTimeString[10];
+      timeStore.utcSeconds = currentTime.date.getUTCSeconds();
+      timeStore.utcMinutes = currentTime.date.getUTCMinutes();
+      timeStore.utcHours = currentTime.date.getUTCHours();
+      timeStore.localSeconds = currentTime.date.getSeconds();
+      timeStore.localMinutes = currentTime.date.getMinutes();
+      timeStore.localHours = currentTime.date.getHours();
+      timeStore.localeTimeString = currentTime.date.toLocaleString(
+        args.timeStringLocales,
+        args.timeStringOptions
+      );
+      timeStore.ampm = getAMPM(currentTime.date);
       timeStore.isRunning = currentTime.isRunning;
 
-      stopListenerArgs.seconds = timeStore.seconds;
-      stopListenerArgs.minutes = timeStore.minutes;
-      stopListenerArgs.hours = timeStore.hours;
+      stopListenerArgs.utcSeconds = timeStore.utcSeconds;
+      stopListenerArgs.utcMinutes = timeStore.utcMinutes;
+      stopListenerArgs.utcHours = timeStore.utcHours;
+      stopListenerArgs.localSeconds = timeStore.localSeconds;
+      stopListenerArgs.localMinutes = timeStore.localMinutes;
+      stopListenerArgs.localHours = timeStore.localHours;
+      stopListenerArgs.localeTimeString = timeStore.localeTimeString;
       stopListenerArgs.ampm = timeStore.ampm;
       stopListenerArgs.isRunning = timeStore.isRunning;
 
@@ -163,16 +212,25 @@ export const useTime = (
     });
 
     currentTime.onUpdate(() => {
-      const localeTimeString = getLocaleTimeString(currentTime.date);
+      timeStore.utcSeconds = currentTime.date.getUTCSeconds();
+      timeStore.utcMinutes = currentTime.date.getUTCMinutes();
+      timeStore.utcHours = currentTime.date.getUTCHours();
+      timeStore.localSeconds = currentTime.date.getSeconds();
+      timeStore.localMinutes = currentTime.date.getMinutes();
+      timeStore.localHours = currentTime.date.getHours();
+      timeStore.localeTimeString = currentTime.date.toLocaleString(
+        args.timeStringLocales,
+        args.timeStringOptions
+      );
+      timeStore.ampm = getAMPM(currentTime.date);
 
-      timeStore.seconds = localeTimeString[6] + localeTimeString[7];
-      timeStore.minutes = localeTimeString[3] + localeTimeString[4];
-      timeStore.hours = calculateHours(localeTimeString, args.hourCycle, 0);
-      timeStore.ampm = localeTimeString[9] + localeTimeString[10];
-
-      updateListenerArgs.seconds = timeStore.seconds;
-      updateListenerArgs.minutes = timeStore.minutes;
-      updateListenerArgs.hours = timeStore.hours;
+      updateListenerArgs.utcSeconds = timeStore.utcSeconds;
+      updateListenerArgs.utcMinutes = timeStore.utcMinutes;
+      updateListenerArgs.utcHours = timeStore.utcHours;
+      updateListenerArgs.localSeconds = timeStore.localSeconds;
+      updateListenerArgs.localMinutes = timeStore.localMinutes;
+      updateListenerArgs.localHours = timeStore.localHours;
+      updateListenerArgs.localeTimeString = timeStore.localeTimeString;
       updateListenerArgs.ampm = timeStore.ampm;
       updateListenerArgs.isRunning = timeStore.isRunning;
 

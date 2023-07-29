@@ -64,3 +64,11 @@ export const getAMPM = (date: Date): string => {
   return savedDate[9] + savedDate[10];
 };
 export type GetAMPM = typeof getAMPM;
+
+export const getCurrentLocale = (
+  (navigator: Navigator) => () =>
+    navigator.languages && navigator.languages.length
+      ? navigator.languages[0]
+      : navigator.language
+)(globalThis.navigator);
+export type GetCurrentLocale = typeof getCurrentLocale;

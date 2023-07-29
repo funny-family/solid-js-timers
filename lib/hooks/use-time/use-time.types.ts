@@ -14,7 +14,8 @@ export type UseTimeHookArgFormat = Extract<
 >;
 
 export type UseTimeHookArgs = {
-  hourCycle?: UseTimeHookArgFormat;
+  timeStringLocales?: Parameters<Date['toLocaleTimeString']>[0];
+  timeStringOptions?: Parameters<Date['toLocaleTimeString']>[1];
 } & Partial<AutoStartable> &
   Partial<AutoClearableInterval> &
   Partial<AutoClearableTimer> &
@@ -25,7 +26,20 @@ export type UseTimeHookArgs = {
 export type UseTimeHookHookListenerArgs = Readonly<
   Pick<
     UseTimeHookReturnValue,
-    'seconds' | 'minutes' | 'hours' | 'ampm' | 'isRunning'
+    /* utc */
+    | 'utcSeconds'
+    | 'utcMinutes'
+    | 'utcHours'
+    /* utc */
+
+    /* local */
+    | 'localSeconds'
+    | 'localMinutes'
+    | 'localHours'
+    /* local */
+    | 'localeTimeString'
+    | 'ampm'
+    | 'isRunning'
   >
 >;
 
@@ -38,13 +52,25 @@ export type UseTimeHookListener = (
 ) => void;
 
 export type UseTimeHookReturnValue = {
-  seconds: string;
-  minutes: string;
-  hours: string;
+  /* utc */
+  utcSeconds: number;
+  utcMinutes: number;
+  utcHours: number;
+  /* utc */
+
+  /* local */
+  localSeconds: number;
+  localMinutes: number;
+  localHours: number;
+  /* local */
+
+  localeTimeString: string;
   ampm: string;
   isRunning: boolean;
+
   start: () => void;
   stop: () => void;
+
   onUpdate: UseTimeHookListener;
   onStart: UseTimeHookListener;
   onStop: UseTimeHookListener;
