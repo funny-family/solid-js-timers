@@ -3,19 +3,20 @@ import type {
   AutoClearableListeners,
   AutoClearableInterval,
   RequireAtLeastOne,
+  AutoClearableTimer,
+  AutoClearableListersArgs,
+  AutoClearableStore,
 } from './../../types';
 import { type StopwatchInterface } from './stopwatch';
 
 export type UseStopwatchHookArgs = {
   initialMilliseconds?: number;
 } & Partial<AutoStartable> &
-  Partial<AutoClearableInterval> & {
-    autoClearTimer?: boolean;
-  } & Partial<AutoClearableListeners> & {
-    autoClearListersArgs?: boolean;
-  } & {
-    autoClearStore?: boolean;
-  };
+  Partial<AutoClearableInterval> &
+  Partial<AutoClearableTimer> &
+  Partial<AutoClearableListeners> &
+  Partial<AutoClearableListersArgs> &
+  Partial<AutoClearableStore>;
 
 export type UseStopwatchHookListenerArgs = Readonly<
   Pick<
@@ -43,10 +44,6 @@ export type UseStopwatchHookListener = (
 ) => void;
 
 export type UseStopwatchHookReturnValue = {
-  // milliseconds: string;
-  // seconds: string;
-  // minutes: string;
-
   /* values as stings */
   millisecondsAsString: string;
   secondsAsString: string;
