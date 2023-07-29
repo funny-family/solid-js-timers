@@ -22,7 +22,7 @@ import type {
   OnCleanupFunction,
   OnMountFunction,
   CreateMutable,
-  Writeable,
+  Writable,
 } from '../../types';
 
 export const useStopwatch = (
@@ -112,7 +112,7 @@ export const useStopwatch = (
     }
     stopwatch.milliseconds = args.initialMilliseconds;
 
-    let startListenerArgs: Writeable<UseStopwatchHookListenerArgs> = {
+    let startListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
       millisecondsAsString: stopwatchStore.millisecondsAsString,
       secondsAsString: stopwatchStore.secondsAsString,
       minutesAsString: stopwatchStore.minutesAsString,
@@ -122,7 +122,7 @@ export const useStopwatch = (
       isRunning: stopwatchStore.isRunning,
     };
 
-    let stopListenerArgs: Writeable<UseStopwatchHookListenerArgs> = {
+    let stopListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
       millisecondsAsString: stopwatchStore.millisecondsAsString,
       secondsAsString: stopwatchStore.secondsAsString,
       minutesAsString: stopwatchStore.minutesAsString,
@@ -132,7 +132,7 @@ export const useStopwatch = (
       isRunning: stopwatchStore.isRunning,
     };
 
-    let resetListenerArgs: Writeable<UseStopwatchHookListenerArgs> = {
+    let resetListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
       millisecondsAsString: stopwatchStore.millisecondsAsString,
       secondsAsString: stopwatchStore.secondsAsString,
       minutesAsString: stopwatchStore.minutesAsString,
@@ -142,7 +142,7 @@ export const useStopwatch = (
       isRunning: stopwatchStore.isRunning,
     };
 
-    let updateListenerArgs: Writeable<UseStopwatchHookListenerArgs> = {
+    let updateListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
       millisecondsAsString: stopwatchStore.millisecondsAsString,
       secondsAsString: stopwatchStore.secondsAsString,
       minutesAsString: stopwatchStore.minutesAsString,
