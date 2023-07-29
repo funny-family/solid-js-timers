@@ -1,6 +1,10 @@
 import type {
   AutoClearableInterval,
   AutoClearableListeners,
+  AutoClearableListersArgs,
+  AutoClearableStore,
+  AutoClearableTimer,
+  AutoStartable,
   RequireAtLeastOne,
 } from '../../types';
 
@@ -11,8 +15,12 @@ export type UseTimeHookArgFormat = Extract<
 
 export type UseTimeHookArgs = {
   hourCycle?: UseTimeHookArgFormat;
-} & Partial<AutoClearableListeners> &
-  Partial<AutoClearableInterval>;
+} & Partial<AutoStartable> &
+  Partial<AutoClearableInterval> &
+  Partial<AutoClearableTimer> &
+  Partial<AutoClearableListeners> &
+  Partial<AutoClearableListersArgs> &
+  Partial<AutoClearableStore>;
 
 export type UseTimeHookHookListenerArgs = Readonly<
   Pick<

@@ -52,3 +52,15 @@ export const getLocaleTimeString = (date: Date): string =>
     hour: '2-digit',
   });
 export type GetLocaleTimeStringFunction = typeof getLocaleTimeString;
+
+export const getAMPM = (date: Date): string => {
+  const savedDate = date.toLocaleTimeString('en-US', {
+    hour12: true,
+    second: '2-digit',
+    minute: '2-digit',
+    hour: '2-digit',
+  });
+
+  return savedDate[9] + savedDate[10];
+};
+export type GetAMPM = typeof getAMPM;
