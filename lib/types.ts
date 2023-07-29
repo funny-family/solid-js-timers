@@ -89,7 +89,7 @@ export type AutoClearableStore = {
   autoClearStore: boolean;
 };
 
-export type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+export type Writable<T> = { -readonly [P in keyof T]: T[P] };
 
 export type TimerCallBackListener = () => void;
 export type TimerListener = (callback: TimerCallBackListener) => void;
