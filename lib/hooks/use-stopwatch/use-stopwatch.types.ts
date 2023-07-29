@@ -26,6 +26,7 @@ export type UseStopwatchHookListenerArgs = Readonly<
     | 'secondsAsString'
     | 'minutesAsString'
     /* values as numbers */
+
     /* values as numbers */
     | 'millisecondsAsNumber'
     | 'secondsAsNumber'

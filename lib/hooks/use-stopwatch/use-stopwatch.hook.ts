@@ -86,11 +86,11 @@ export const useStopwatch = (
       secondsAsNumber: calculateSeconds(stopwatch.milliseconds),
       minutesAsNumber: calculateMinutes(stopwatch.milliseconds),
 
+      isRunning: stopwatch.isRunning,
+
       start: stopwatch.start,
       stop: stopwatch.stop,
       reset: stopwatch.reset,
-
-      isRunning: stopwatch.isRunning,
 
       onStart: (callback) => {
         startListeners.push(callback);
