@@ -2,25 +2,28 @@
 import { useStopwatch } from '../../../lib';
 
 export const UseStopwatchRoute = () => {
-  const stopwatch = useStopwatch();
-  // const stopwatch = useStopwatch({ autoStart: true });
+  // const stopwatch = useStopwatch();
+  const stopwatch = useStopwatch({ initialMilliseconds: 45654 });
+  // console.log(stopwatch);
+
+  // const stopwatch = useStopwatch({ autostart: true });
   // const stopwatch = useStopwatch({
   //   initialMilliseconds: 3595000,
   // });
   // const stopwatch = useStopwatch({
-  //   autoStart: true,
+  //   autostart: true,
   //   initialMilliseconds: 3595000,
   // });
 
   // const stopwatch1 = useStopwatch();
   // console.log('stopwatch:', stopwatch);
 
-  // stopwatch.onStart((args) => {
-  //   console.log('on start 1', args);
+  stopwatch.onStart((args) => {
+    console.log('on start 1', args);
+  });
+  // stopwatch.onStart(() => {
+  //   console.log('on start 2');
   // });
-  // // stopwatch.onStart(() => {
-  // //   console.log('on start 2');
-  // // });
 
   // stopwatch.onStop((args) => {
   //   console.log('on stop 1', args);
@@ -48,7 +51,7 @@ export const UseStopwatchRoute = () => {
       <section>
         {/* <div onClick={() => stopwatch1.start()}>{stopwatch1.value}</div> */}
         <h1>stopwatch hook</h1>
-        <div>
+        <p>
           <button type="button" onClick={() => stopwatch.start()}>
             start
           </button>
@@ -58,13 +61,16 @@ export const UseStopwatchRoute = () => {
           <button type="button" onClick={() => stopwatch.reset()}>
             reset
           </button>
-          <span> isRunning: {`${stopwatch.isRunning}`}</span>
+        </p>
+        <p> isRunning: {`${stopwatch.isRunning}`}</p>
+        <div>
+          stopwatch millisecondsAsNumber: {stopwatch.millisecondsAsNumber}
         </div>
-        <div>stopwatch value: {stopwatch.value}</div>
         <div>
           <span>stopwatch time: </span>
           <span>
-            {stopwatch.minutes}:{stopwatch.seconds}:{stopwatch.milliseconds}
+            {stopwatch.minutesAsString}:{stopwatch.secondsAsString}:
+            {stopwatch.millisecondsAsString}
           </span>
         </div>
       </section>

@@ -10,8 +10,8 @@ dependencies:
 
 devDependencies:
   solid-devtools:
-    specifier: ^0.27.3
-    version: 0.27.3(solid-js@1.7.6)(vite@4.3.9)
+    specifier: ^0.27.4
+    version: 0.27.4(solid-js@1.7.6)(vite@4.3.9)
   typescript:
     specifier: ^5.1.3
     version: 5.1.3
@@ -598,12 +598,12 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
 
-  /@solid-devtools/debugger@0.22.1(solid-js@1.7.6):
-    resolution: {integrity: sha512-y/8Y7rKZPqP5cN4uHVySTHtX5KSfYcKnBVzmVmzaiZhqzQwqu6goc7EgSq3hM1MJYkcLWcfBodMTdJpa4LqhHQ==}
+  /@solid-devtools/debugger@0.22.2(solid-js@1.7.6):
+    resolution: {integrity: sha512-nfS2/yWgTcmqYZbvO6eoVdPnH6Lyu8vEsEXdctIbDtcAsZo96L37dyJvLI8WIzW3x2R9KPUfKd9Iv93MIs98Pw==}
     peerDependencies:
       solid-js: ^1.7.0
     dependencies:
-      '@solid-devtools/shared': 0.12.0(solid-js@1.7.6)
+      '@solid-devtools/shared': 0.12.1(solid-js@1.7.6)
       '@solid-primitives/bounds': 0.0.111(solid-js@1.7.6)
       '@solid-primitives/cursor': 0.0.109(solid-js@1.7.6)
       '@solid-primitives/event-bus': 1.0.7(solid-js@1.7.6)
@@ -611,15 +611,15 @@ packages:
       '@solid-primitives/keyboard': 1.2.3(solid-js@1.7.6)
       '@solid-primitives/platform': 0.0.105(solid-js@1.7.6)
       '@solid-primitives/rootless': 1.4.1(solid-js@1.7.6)
-      '@solid-primitives/scheduled': 1.3.2(solid-js@1.7.6)
+      '@solid-primitives/scheduled': 1.4.0(solid-js@1.7.6)
       '@solid-primitives/static-store': 0.0.2(solid-js@1.7.6)
       '@solid-primitives/utils': 6.2.0(solid-js@1.7.6)
       solid-js: 1.7.6
-      type-fest: 3.12.0
+      type-fest: 3.13.1
     dev: true
 
-  /@solid-devtools/shared@0.12.0(solid-js@1.7.6):
-    resolution: {integrity: sha512-BQk2rLyKfNxfp+Y+3o/ZbPqO0TnM4pRJZwxoUthxHL6wM7AN6es4asQpoMnLJjvV/mjdFMzNVrqTnuDAoJuEmA==}
+  /@solid-devtools/shared@0.12.1(solid-js@1.7.6):
+    resolution: {integrity: sha512-nhqR9O12HbxZh3UKGjuVbxipVM0O9qpC13dZa/7QISXT1mw6x5/ATQycI3VCNDTTwW6vARgwGue+De5tfs94ug==}
     peerDependencies:
       solid-js: ^1.7.0
     dependencies:
@@ -628,7 +628,7 @@ packages:
       '@solid-primitives/media': 2.2.3(solid-js@1.7.6)
       '@solid-primitives/refs': 1.0.4(solid-js@1.7.6)
       '@solid-primitives/rootless': 1.4.1(solid-js@1.7.6)
-      '@solid-primitives/scheduled': 1.3.2(solid-js@1.7.6)
+      '@solid-primitives/scheduled': 1.4.0(solid-js@1.7.6)
       '@solid-primitives/static-store': 0.0.2(solid-js@1.7.6)
       '@solid-primitives/styles': 0.0.108(solid-js@1.7.6)
       '@solid-primitives/utils': 6.2.0(solid-js@1.7.6)
@@ -735,8 +735,8 @@ packages:
       solid-js: 1.7.6
     dev: true
 
-  /@solid-primitives/scheduled@1.3.2(solid-js@1.7.6):
-    resolution: {integrity: sha512-2rDCyYNjI9zBqpdmJG8sN8h90gbe2hSqRdj1OMmKp3qEbKVCrXXswLmrbBuNBi/uow6f8AHR9uheb7LWQ3ojcw==}
+  /@solid-primitives/scheduled@1.4.0(solid-js@1.7.6):
+    resolution: {integrity: sha512-j4xMdsvluO8xv+M62gSUrUEKiqT0qlymM9PhXiqIzpnRNm5rrP+bHpG0BDhqkNe6fDEDb+W1L7OCmiG+qveBvQ==}
     peerDependencies:
       solid-js: ^1.6.12
     dependencies:
@@ -1039,8 +1039,8 @@ packages:
     resolution: {integrity: sha512-ZfhQVB59hmIauJG5Ydynupy8KHyr5imGNtdDhbZG68Ufh1Ynkv9KOYOAABf71oVbQxJ8VkWnMHAjEHE7fWkH5g==}
     engines: {node: '>=10'}
 
-  /solid-devtools@0.27.3(solid-js@1.7.6)(vite@4.3.9):
-    resolution: {integrity: sha512-cyIocZr6QuDCSWAqlfUdXg6vV986e5a/N8SwEPecMWlWS+PSTvYqMLzL8onFSPY5ZBeRRYR5PVN6nB4o5BIN9Q==}
+  /solid-devtools@0.27.4(solid-js@1.7.6)(vite@4.3.9):
+    resolution: {integrity: sha512-XbQxds1F8eMVi5OFAmrLv1BTSRVjF0qzJZ1L4Ac8WM+1/75v/g+CGbBmROgTm9wVJsp73B2lRBbGBjQlZGMkEA==}
     peerDependencies:
       solid-js: ^1.7.0
       solid-start: ^0.2.20
@@ -1054,8 +1054,8 @@ packages:
       '@babel/core': 7.22.5
       '@babel/plugin-syntax-typescript': 7.22.5(@babel/core@7.22.5)
       '@babel/types': 7.22.5
-      '@solid-devtools/debugger': 0.22.1(solid-js@1.7.6)
-      '@solid-devtools/shared': 0.12.0(solid-js@1.7.6)
+      '@solid-devtools/debugger': 0.22.2(solid-js@1.7.6)
+      '@solid-devtools/shared': 0.12.1(solid-js@1.7.6)
       solid-js: 1.7.6
       vite: 4.3.9
     transitivePeerDependencies:
@@ -1096,8 +1096,8 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /type-fest@3.12.0:
-    resolution: {integrity: sha512-qj9wWsnFvVEMUDbESiilKeXeHL7FwwiFcogfhfyjmvT968RXSvnl23f1JOClTHYItsi7o501C/7qVllscUP3oA==}
+  /type-fest@3.13.1:
+    resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
     engines: {node: '>=14.16'}
     dev: true
 

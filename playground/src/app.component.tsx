@@ -1,17 +1,46 @@
-import { type Component } from 'solid-js';
+import { Show, type Component } from 'solid-js';
+import { createMutable } from 'solid-js/store';
 import { UseStopwatchRoute } from './routes/use-stopwatch.route';
 import { UseTimeRoute } from './routes/use-time.route';
 import { UseTimerRoute } from './routes/use-timer.route';
 import './app.styles.css';
 
 export const App: Component = () => {
+  const v = createMutable({
+    stopwatch: true,
+    time: true,
+    timer: true,
+  });
+
   return (
     <main>
-      <UseStopwatchRoute />
+      <div>
+        <button type="button" onClick={() => (v.stopwatch = !v.stopwatch)}>
+          hide/show stopwatch
+        </button>
+        <button type="button" onClick={() => (v.time = !v.time)}>
+          hide/show time
+        </button>
+        <button type="button" onClick={() => (v.timer = !v.timer)}>
+          hide/show timer
+        </button>
+      </div>
+
+      <Show when={v.stopwatch} fallback={null}>
+        <UseStopwatchRoute />
+      </Show>
+
       <br />
-      <UseTimeRoute />
+
+      <Show when={v.time} fallback={null}>
+        <UseTimeRoute />
+      </Show>
+
       <br />
-      <UseTimerRoute />
+
+      <Show when={v.timer} fallback={null}>
+        <UseTimerRoute />
+      </Show>
     </main>
   );
 };

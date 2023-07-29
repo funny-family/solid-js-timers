@@ -1,27 +1,53 @@
 // import { useTime } from 'solid-js-timers';
-import { useTime } from '../../../lib/hooks/use-time/use-time.hook';
+import { useTime } from '../../../lib/hooks/use-time';
 
 export const UseTimeRoute = () => {
-  // const time = useTime();
-  const time = useTime({ format: '12-hour' });
-  // const time = useTime({ format: '24-hour' });
+  const time = useTime({
+    localesArgument: 'ko-KR',
+  });
+
+  time.onStart((args) => {
+    console.log('start 1', args);
+  });
+  time.onStart((args) => {
+    console.log('start 2', args);
+  });
+
+  time.onStop((args) => {
+    console.log('stop 1', args);
+  });
+  time.onStop((args) => {
+    console.log('stop 2', args);
+  });
 
   // time.onUpdate((args) => {
-  //   console.log('updating time', args);
+  //   console.log('updating 1', args);
   // });
-  // time.onUpdate(() => {
-  //   console.log('updating time 1');
+  // time.onUpdate((args) => {
+  //   console.log('updating 2', args);
   // });
 
-  const currentTime = (
-    (time: ReturnType<typeof useTime>) => () =>
-      `${time.hours}:${time.minutes}:${time.seconds} ${time.ampm}`
-  )(time);
+  // const currentTime = () =>
+  //   `${time.currentDate.getHours()}:${time.currentDate.getMinutes()}:${time.currentDate.getSeconds()} ${
+  //     time.ampm
+  //   }`;
 
   return (
     <section>
       <h1>Time</h1>
-      <p>Current time: {currentTime()}</p>
+      <p>
+        <button type="button" onClick={() => time.start()}>
+          start
+        </button>
+        <button type="button" onClick={() => time.stop()}>
+          stop
+        </button>
+      </p>
+      <p>isRunning: {`${time.isRunning}`}</p>
+      {/* <p>Current time: {currentTime()}</p> */}
+      <p>
+        Time string: {time.localeTimeString} (<b>{time.ampm}</b>)
+      </p>
     </section>
   );
 };
