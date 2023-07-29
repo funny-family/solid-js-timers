@@ -41,16 +41,55 @@ export type Listener<T extends any> = (
   callback: (args: Readonly<T>) => void
 ) => void;
 
+/**
+ * @description
+ * Start timer on mount.
+ */
 export type AutoStartable = {
   autostart: boolean;
 };
 
-export type AutoClearableListeners = {
-  autoClearListeners: boolean;
-};
-
+/**
+ * @description
+ * Clear hook interval on cleanup.
+ */
 export type AutoClearableInterval = {
   autoClearInterval: boolean;
 };
 
+/**
+ * @description
+ * Clear timer on cleanup.
+ */
+export type AutoClearableTimer = {
+  autoClearTimer: boolean;
+};
+
+/**
+ * @description
+ * Clear listeners on cleanup.
+ */
+export type AutoClearableListeners = {
+  autoClearListeners: boolean;
+};
+
+/**
+ * @description
+ * Clear arguments of listeners on cleanup.
+ */
+export type AutoClearableListersArgs = {
+  autoClearListersArgs: boolean;
+};
+
+/**
+ * @description
+ * Clear store inside hook on cleanup.
+ */
+export type AutoClearableStore = {
+  autoClearStore: boolean;
+};
+
 export type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+
+export type TimerCallBackListener = () => void;
+export type TimerListener = (callback: TimerCallBackListener) => void;
