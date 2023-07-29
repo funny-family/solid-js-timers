@@ -8,14 +8,9 @@ import type {
   RequireAtLeastOne,
 } from '../../types';
 
-export type UseTimeHookArgFormat = Extract<
-  NonNullable<Intl.DateTimeFormatOptions['hourCycle']>,
-  'h24' | 'h12'
->;
-
 export type UseTimeHookArgs = {
-  timeStringLocales?: Parameters<Date['toLocaleTimeString']>[0];
-  timeStringOptions?: Parameters<Date['toLocaleTimeString']>[1];
+  localesArgument?: Parameters<Date['toLocaleTimeString']>[0];
+  dateTimeFormatOptions?: Parameters<Date['toLocaleTimeString']>[1];
 } & Partial<AutoStartable> &
   Partial<AutoClearableInterval> &
   Partial<AutoClearableTimer> &
