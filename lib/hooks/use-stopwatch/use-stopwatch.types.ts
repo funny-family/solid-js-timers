@@ -1,3 +1,4 @@
+import { type StopwatchInterface } from './stopwatch';
 import type {
   AutoStartable,
   AutoClearableListeners,
@@ -7,7 +8,6 @@ import type {
   AutoClearableListersArgs,
   AutoClearableStore,
 } from './../../types';
-import { type StopwatchInterface } from './stopwatch';
 
 export type UseStopwatchHookArgs = {
   initialMilliseconds?: number;
@@ -21,18 +21,7 @@ export type UseStopwatchHookArgs = {
 export type UseStopwatchHookListenerArgs = Readonly<
   Pick<
     UseStopwatchHookReturnValue,
-    /* values as numbers */
-    | 'millisecondsAsString'
-    | 'secondsAsString'
-    | 'minutesAsString'
-    /* values as numbers */
-
-    /* values as numbers */
-    | 'millisecondsAsNumber'
-    | 'secondsAsNumber'
-    | 'minutesAsNumber'
-    | 'isRunning'
-    /* values as numbers */
+    'milliseconds' | 'seconds' | 'minutes' | 'isRunning'
   >
 >;
 
@@ -45,17 +34,9 @@ export type UseStopwatchHookListener = (
 ) => void;
 
 export type UseStopwatchHookReturnValue = {
-  /* values as stings */
-  millisecondsAsString: string;
-  secondsAsString: string;
-  minutesAsString: string;
-  /* values as stings */
-
-  /* values as numbers */
-  millisecondsAsNumber: number;
-  secondsAsNumber: number;
-  minutesAsNumber: number;
-  /* values as numbers */
+  milliseconds: number;
+  seconds: number;
+  minutes: number;
 
   isRunning: boolean;
 

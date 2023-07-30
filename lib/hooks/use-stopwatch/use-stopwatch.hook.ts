@@ -2,14 +2,10 @@ import { onCleanup, onMount } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import { type StopwatchConstructor, Stopwatch } from './stopwatch';
 import {
-  type CalculateMillisecondsAsStringFunction,
-  type CalculateSecondsFunction,
-  type CalculateMinutesFunction,
-  type PadZeroToNumberFunction,
-  calculateMillisecondsAsString,
+  type CalculateSeconds,
+  type CalculateMinutes,
   calculateSeconds,
   calculateMinutes,
-  padZeroToNumber,
 } from './use-stopwatch.utils';
 import type {
   UseStopwatchHook,
@@ -28,10 +24,8 @@ import type {
 export const useStopwatch = (
   (
     Stopwatch: StopwatchConstructor,
-    calculateMillisecondsAsString: CalculateMillisecondsAsStringFunction,
-    calculateSeconds: CalculateSecondsFunction,
-    calculateMinutes: CalculateMinutesFunction,
-    padZeroToNumber: PadZeroToNumberFunction,
+    calculateSeconds: CalculateSeconds,
+    calculateMinutes: CalculateMinutes,
     createMutable: CreateMutable,
     onMount: OnMountFunction,
     onCleanup: OnCleanupFunction
@@ -72,19 +66,9 @@ export const useStopwatch = (
 
     let stopwatch = new Stopwatch(args.initialMilliseconds, 90);
     let stopwatchStore = createMutable<UseStopwatchHookReturnValue>({
-      millisecondsAsString: calculateMillisecondsAsString(
-        stopwatch.milliseconds
-      ),
-      secondsAsString: padZeroToNumber(
-        calculateSeconds(stopwatch.milliseconds)
-      ),
-      minutesAsString: padZeroToNumber(
-        calculateMinutes(stopwatch.milliseconds)
-      ),
-
-      millisecondsAsNumber: stopwatch.milliseconds,
-      secondsAsNumber: calculateSeconds(stopwatch.milliseconds),
-      minutesAsNumber: calculateMinutes(stopwatch.milliseconds),
+      milliseconds: stopwatch.milliseconds,
+      seconds: calculateSeconds(stopwatch.milliseconds),
+      minutes: calculateMinutes(stopwatch.milliseconds),
 
       isRunning: stopwatch.isRunning,
 
@@ -113,56 +97,39 @@ export const useStopwatch = (
     stopwatch.milliseconds = args.initialMilliseconds;
 
     let startListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
-      millisecondsAsString: stopwatchStore.millisecondsAsString,
-      secondsAsString: stopwatchStore.secondsAsString,
-      minutesAsString: stopwatchStore.minutesAsString,
-      millisecondsAsNumber: stopwatchStore.millisecondsAsNumber,
-      secondsAsNumber: stopwatchStore.secondsAsNumber,
-      minutesAsNumber: stopwatchStore.minutesAsNumber,
+      milliseconds: stopwatchStore.milliseconds,
+      seconds: stopwatchStore.seconds,
+      minutes: stopwatchStore.minutes,
       isRunning: stopwatchStore.isRunning,
     };
 
     let stopListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
-      millisecondsAsString: stopwatchStore.millisecondsAsString,
-      secondsAsString: stopwatchStore.secondsAsString,
-      minutesAsString: stopwatchStore.minutesAsString,
-      millisecondsAsNumber: stopwatchStore.millisecondsAsNumber,
-      secondsAsNumber: stopwatchStore.secondsAsNumber,
-      minutesAsNumber: stopwatchStore.minutesAsNumber,
+      milliseconds: stopwatchStore.milliseconds,
+      seconds: stopwatchStore.seconds,
+      minutes: stopwatchStore.minutes,
       isRunning: stopwatchStore.isRunning,
     };
 
     let resetListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
-      millisecondsAsString: stopwatchStore.millisecondsAsString,
-      secondsAsString: stopwatchStore.secondsAsString,
-      minutesAsString: stopwatchStore.minutesAsString,
-      millisecondsAsNumber: stopwatchStore.millisecondsAsNumber,
-      secondsAsNumber: stopwatchStore.secondsAsNumber,
-      minutesAsNumber: stopwatchStore.minutesAsNumber,
+      milliseconds: stopwatchStore.milliseconds,
+      seconds: stopwatchStore.seconds,
+      minutes: stopwatchStore.minutes,
       isRunning: stopwatchStore.isRunning,
     };
 
     let updateListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
-      millisecondsAsString: stopwatchStore.millisecondsAsString,
-      secondsAsString: stopwatchStore.secondsAsString,
-      minutesAsString: stopwatchStore.minutesAsString,
-      millisecondsAsNumber: stopwatchStore.millisecondsAsNumber,
-      secondsAsNumber: stopwatchStore.secondsAsNumber,
-      minutesAsNumber: stopwatchStore.minutesAsNumber,
+      milliseconds: stopwatchStore.milliseconds,
+      seconds: stopwatchStore.seconds,
+      minutes: stopwatchStore.minutes,
       isRunning: stopwatchStore.isRunning,
     };
 
     stopwatch.onStart(() => {
       stopwatchStore.isRunning = stopwatch.isRunning;
 
-      startListenerArgs.millisecondsAsString =
-        stopwatchStore.millisecondsAsString;
-      startListenerArgs.secondsAsString = stopwatchStore.secondsAsString;
-      startListenerArgs.minutesAsString = stopwatchStore.minutesAsString;
-      startListenerArgs.millisecondsAsNumber =
-        stopwatchStore.millisecondsAsNumber;
-      startListenerArgs.secondsAsNumber = stopwatchStore.secondsAsNumber;
-      startListenerArgs.minutesAsNumber = stopwatchStore.minutesAsNumber;
+      startListenerArgs.milliseconds = stopwatchStore.milliseconds;
+      startListenerArgs.seconds = stopwatchStore.seconds;
+      startListenerArgs.minutes = stopwatchStore.minutes;
       startListenerArgs.isRunning = stopwatchStore.isRunning;
 
       if (startListeners.length === 1) {
@@ -179,14 +146,9 @@ export const useStopwatch = (
     stopwatch.onStop(() => {
       stopwatchStore.isRunning = stopwatch.isRunning;
 
-      stopListenerArgs.millisecondsAsString =
-        stopwatchStore.millisecondsAsString;
-      stopListenerArgs.secondsAsString = stopwatchStore.secondsAsString;
-      stopListenerArgs.minutesAsString = stopwatchStore.minutesAsString;
-      stopListenerArgs.millisecondsAsNumber =
-        stopwatchStore.millisecondsAsNumber;
-      stopListenerArgs.secondsAsNumber = stopwatchStore.secondsAsNumber;
-      stopListenerArgs.minutesAsNumber = stopwatchStore.minutesAsNumber;
+      stopListenerArgs.milliseconds = stopwatchStore.milliseconds;
+      stopListenerArgs.seconds = stopwatchStore.seconds;
+      stopListenerArgs.minutes = stopwatchStore.minutes;
       stopListenerArgs.isRunning = stopwatchStore.isRunning;
 
       if (stopListeners.length === 1) {
@@ -201,22 +163,14 @@ export const useStopwatch = (
     });
 
     stopwatch.onReset(() => {
-      stopwatchStore.millisecondsAsString = '00';
-      stopwatchStore.secondsAsString = '00';
-      stopwatchStore.minutesAsString = '00';
-      stopwatchStore.millisecondsAsNumber = 0;
-      stopwatchStore.secondsAsNumber = 0;
-      stopwatchStore.minutesAsNumber = 0;
+      stopwatchStore.milliseconds = 0;
+      stopwatchStore.seconds = 0;
+      stopwatchStore.minutes = 0;
       stopwatchStore.isRunning = stopwatch.isRunning;
 
-      resetListenerArgs.millisecondsAsString =
-        stopwatchStore.millisecondsAsString;
-      resetListenerArgs.secondsAsString = stopwatchStore.secondsAsString;
-      resetListenerArgs.minutesAsString = stopwatchStore.minutesAsString;
-      resetListenerArgs.millisecondsAsNumber =
-        stopwatchStore.millisecondsAsNumber;
-      resetListenerArgs.secondsAsNumber = stopwatchStore.secondsAsNumber;
-      resetListenerArgs.minutesAsNumber = stopwatchStore.minutesAsNumber;
+      resetListenerArgs.milliseconds = stopwatchStore.milliseconds;
+      resetListenerArgs.seconds = stopwatchStore.seconds;
+      resetListenerArgs.minutes = stopwatchStore.minutes;
       resetListenerArgs.isRunning = stopwatchStore.isRunning;
 
       if (resetListeners.length === 1) {
@@ -231,29 +185,14 @@ export const useStopwatch = (
     });
 
     stopwatch.onUpdate(() => {
-      stopwatchStore.millisecondsAsString = calculateMillisecondsAsString(
-        stopwatch.milliseconds
-      );
-      stopwatchStore.secondsAsString = padZeroToNumber(
-        calculateSeconds(stopwatch.milliseconds)
-      );
-      stopwatchStore.minutesAsString = padZeroToNumber(
-        calculateMinutes(stopwatch.milliseconds)
-      );
-      stopwatchStore.millisecondsAsNumber = stopwatch.milliseconds;
-      stopwatchStore.secondsAsNumber = calculateSeconds(stopwatch.milliseconds);
-      stopwatchStore.minutesAsNumber = calculateMinutes(stopwatch.milliseconds);
+      stopwatchStore.milliseconds = stopwatch.milliseconds;
+      stopwatchStore.seconds = calculateSeconds(stopwatch.milliseconds);
+      stopwatchStore.minutes = calculateMinutes(stopwatch.milliseconds);
       stopwatchStore.isRunning = stopwatch.isRunning;
 
-      updateListenerArgs.millisecondsAsString =
-        stopwatchStore.millisecondsAsString;
-      updateListenerArgs.secondsAsString = stopwatchStore.secondsAsString;
-      updateListenerArgs.minutesAsString = stopwatchStore.minutesAsString;
-      updateListenerArgs.millisecondsAsNumber =
-        stopwatchStore.millisecondsAsNumber;
-      updateListenerArgs.secondsAsNumber = stopwatchStore.secondsAsNumber;
-      updateListenerArgs.minutesAsNumber = stopwatchStore.minutesAsNumber;
-      updateListenerArgs.isRunning = stopwatchStore.isRunning;
+      updateListenerArgs.milliseconds = stopwatchStore.milliseconds;
+      updateListenerArgs.seconds = stopwatchStore.seconds;
+      updateListenerArgs.minutes = stopwatchStore.minutes;
 
       // support only till 60 min (1 hour)
       if (stopwatch.milliseconds >= 3600000) {
@@ -309,10 +248,8 @@ export const useStopwatch = (
   }
 )(
   Stopwatch,
-  calculateMillisecondsAsString,
   calculateSeconds,
   calculateMinutes,
-  padZeroToNumber,
   createMutable,
   onMount,
   onCleanup
