@@ -1,9 +1,3 @@
-import type {
-  UseTimeHookHookListenerArgs,
-  UseTimeHookReturnValue,
-} from './use-time.types';
-import type { Writable } from '../../types';
-
 /**
  * @description
  * Get AM/PM from a date/
