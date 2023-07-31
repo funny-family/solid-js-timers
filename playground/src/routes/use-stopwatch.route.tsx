@@ -4,6 +4,7 @@ import { useStopwatch } from '../../../lib';
 export const UseStopwatchRoute = () => {
   // const stopwatch = useStopwatch();
   const stopwatch = useStopwatch({ initialMilliseconds: 45654 });
+  const numberFormat_Arabic = Intl.NumberFormat('ar-EG');
   // console.log(stopwatch);
 
   // const stopwatch = useStopwatch({ autostart: true });
@@ -63,14 +64,22 @@ export const UseStopwatchRoute = () => {
           </button>
         </p>
         <p> isRunning: {`${stopwatch.isRunning}`}</p>
-        <div>
-          stopwatch millisecondsAsNumber: {stopwatch.millisecondsAsNumber}
-        </div>
+        <p>stopwatch milliseconds: {stopwatch.milliseconds}</p>
         <div>
           <span>stopwatch time: </span>
           <span>
-            {stopwatch.minutesAsString}:{stopwatch.secondsAsString}:
-            {stopwatch.millisecondsAsString}
+            {`${stopwatch.minutes}`.padStart(2, '0')}:
+            {`${stopwatch.seconds}`.padStart(2, '0')}:
+            {`${stopwatch.milliseconds}`.padStart(2, '0').slice(-2)}
+          </span>
+        </div>
+        <br />
+        <div>
+          <span>"ar-EG" stopwatch time:</span>
+          <span>
+            &nbsp;{numberFormat_Arabic.format(stopwatch.minutes)}&nbsp; &nbsp;
+            {numberFormat_Arabic.format(stopwatch.seconds)}&nbsp; &nbsp;
+            {numberFormat_Arabic.format(stopwatch.milliseconds)}&nbsp;
           </span>
         </div>
       </section>

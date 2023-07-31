@@ -3,37 +3,41 @@ import { useTimer } from '../../../lib';
 import { Countdown } from '../../../lib/hooks/use-timer';
 
 const C = () => {
-  const countdown = new Countdown(new Date('Jul 28, 2023 20:24:00').getTime());
-  console.log(1, countdown);
+  const countdown = new Countdown(Date.now() + 324353);
 
   const countdownStore = createMutable({
+    localeTimeString: countdown.date.toLocaleTimeString(),
     milliseconds: countdown.milliseconds,
     state: countdown.state,
     isRunning: `${countdown.isRunning}`,
   });
   countdown.onStart(() => {
+    countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
     countdownStore.milliseconds = countdown.milliseconds;
     countdownStore.state = countdown.state;
     countdownStore.isRunning = `${countdown.isRunning}`;
   });
   countdown.onStop(() => {
+    countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
     countdownStore.milliseconds = countdown.milliseconds;
     countdownStore.state = countdown.state;
     countdownStore.isRunning = `${countdown.isRunning}`;
   });
   countdown.onEnd(() => {
+    countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
     countdownStore.milliseconds = countdown.milliseconds;
     countdownStore.state = countdown.state;
     countdownStore.isRunning = `${countdown.isRunning}`;
   });
   countdown.onReset(() => {
+    countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
     countdownStore.milliseconds = countdown.milliseconds;
     countdownStore.state = countdown.state;
     countdownStore.isRunning = `${countdown.isRunning}`;
   });
   countdown.onUpdate(() => {
+    countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
     countdownStore.milliseconds = countdown.milliseconds;
-    countdownStore.isRunning = `${countdown.isRunning}`;
   });
 
   return (
@@ -51,6 +55,7 @@ const C = () => {
         </button>
       </div>
       <p>isRunning: {countdownStore.isRunning}</p>
+      <p>localeTimeString: {countdownStore.localeTimeString}</p>
       <p>milliseconds: {countdownStore.milliseconds}</p>
     </section>
   );
@@ -58,8 +63,11 @@ const C = () => {
 
 export const UseTimerRoute = () => {
   const timer = useTimer({
-    // milliseconds: new Date('Jul 20, 2025 18:49:00').getTime(),
-    milliseconds: new Date(Date.now() + 2346827462864).getTime(),
+    // initialMilliseconds: new Date('Jul 20, 2025 18:49:00').getTime(),
+    // initialMilliseconds: new Date(Date.now() + 2346827462864).getTime(),
+    // initialMilliseconds: new Date('Jan 5, 2024 15:37:25').getTime(),
+    // initialMilliseconds: Date.now() + 9457698,
+    initialMilliseconds: Date.now() + 277153982,
     autostart: true,
   });
   // timer.onUpdate((args) => {
@@ -86,29 +94,29 @@ export const UseTimerRoute = () => {
           </button>
         </div>
         <p>isRunning: {`${timer.isRunning}`}</p>
-        <div>value: {timer.value}</div>
+        {/* <div>value: {timer.milliseconds}</div> */}
         <div>
           <span>time to: </span>
+          {/* <span>
+            <b>y:</b> {timer.years.toString().padStart(2, '0')}&nbsp;|&nbsp;
+          </span> */}
+          {/* <span>
+            <b>m:</b> {timer.month.toString().padStart(2, '0')}&nbsp;|&nbsp;
+          </span> */}
+          {/* <span>
+            <b>w:</b> {timer.weeks.toString().padStart(2, '0')}&nbsp;|&nbsp;
+          </span> */}
           <span>
-            <b>years:</b> {timer.years}&nbsp;|&nbsp;
+            <b>d:</b> {timer.days.toString().padStart(2, '0')}&nbsp;|&nbsp;
           </span>
           <span>
-            <b>mount:</b> {timer.month}&nbsp;|&nbsp;
+            <b>h:</b> {timer.hours.toString().padStart(2, '0')}&nbsp;|&nbsp;
           </span>
           <span>
-            <b>weeks:</b> {timer.weeks}&nbsp;|&nbsp;
+            <b>m:</b> {timer.minutes.toString().padStart(2, '0')}&nbsp;|&nbsp;
           </span>
           <span>
-            <b>days:</b> {timer.days}&nbsp;|&nbsp;
-          </span>
-          <span>
-            <b>hours:</b> {timer.hours}&nbsp;|&nbsp;
-          </span>
-          <span>
-            <b>minutes:</b> {timer.minutes}&nbsp;|&nbsp;
-          </span>
-          <span>
-            <b>seconds:</b> {timer.seconds}
+            <b>s:</b> {timer.seconds.toString().padStart(2, '0')}&nbsp;|&nbsp;
           </span>
         </div>
       </section>

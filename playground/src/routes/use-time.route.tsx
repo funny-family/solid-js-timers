@@ -6,19 +6,19 @@ export const UseTimeRoute = () => {
     localesArgument: 'ko-KR',
   });
 
-  time.onStart((args) => {
-    console.log('start 1', args);
-  });
-  time.onStart((args) => {
-    console.log('start 2', args);
-  });
+  // time.onStart((args) => {
+  //   console.log('start 1', args);
+  // });
+  // time.onStart((args) => {
+  //   console.log('start 2', args);
+  // });
 
-  time.onStop((args) => {
-    console.log('stop 1', args);
-  });
-  time.onStop((args) => {
-    console.log('stop 2', args);
-  });
+  // time.onStop((args) => {
+  //   console.log('stop 1', args);
+  // });
+  // time.onStop((args) => {
+  //   console.log('stop 2', args);
+  // });
 
   // time.onUpdate((args) => {
   //   console.log('updating 1', args);
@@ -46,7 +46,7 @@ export const UseTimeRoute = () => {
       <p>isRunning: {`${time.isRunning}`}</p>
       {/* <p>Current time: {currentTime()}</p> */}
       <p>
-        Time string: {time.localeTimeString} (<b>{time.ampm}</b>)
+        localeTimeString: {time.localeTimeString} (<b>{time.ampm}</b>)
       </p>
     </section>
   );
