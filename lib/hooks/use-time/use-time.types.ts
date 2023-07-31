@@ -21,17 +21,12 @@ export type UseTimeHookArgs = {
 export type UseTimeHookHookListenerArgs = Readonly<
   Pick<
     UseTimeHookReturnValue,
-    /* utc */
     | 'utcSeconds'
     | 'utcMinutes'
     | 'utcHours'
-    /* utc */
-
-    /* local */
     | 'localSeconds'
     | 'localMinutes'
     | 'localHours'
-    /* local */
     | 'localeTimeString'
     | 'ampm'
     | 'isRunning'
@@ -47,25 +42,17 @@ export type UseTimeHookListener = (
 ) => void;
 
 export type UseTimeHookReturnValue = {
-  /* utc */
   utcSeconds: number;
   utcMinutes: number;
   utcHours: number;
-  /* utc */
-
-  /* local */
   localSeconds: number;
   localMinutes: number;
   localHours: number;
-  /* local */
-
   localeTimeString: string;
   ampm: string;
   isRunning: boolean;
-
   start: () => void;
   stop: () => void;
-
   onUpdate: UseTimeHookListener;
   onStart: UseTimeHookListener;
   onStop: UseTimeHookListener;

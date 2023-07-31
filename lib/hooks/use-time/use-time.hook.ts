@@ -4,10 +4,8 @@ import { type CurrentTimeConstructor, CurrentTime } from './current-time';
 import {
   type GetCurrentLocale,
   type GetAMPM,
-  type UpdateListenerAugmentsOf,
   getCurrentLocale,
   getAMPM,
-  updateListenerAugmentsOf,
 } from './use-time.utils';
 import type {
   UseTimeHook,
@@ -28,7 +26,6 @@ export const useTime = (
     CurrentTime: CurrentTimeConstructor,
     getCurrentLocale: GetCurrentLocale,
     getAMPM: GetAMPM,
-    updateListenerAugmentsOf: UpdateListenerAugmentsOf,
     createMutable: CreateMutable,
     onMount: OnMountFunction,
     onCleanup: OnCleanupFunction
@@ -71,21 +68,17 @@ export const useTime = (
       utcSeconds: currentTime.date.getUTCSeconds(),
       utcMinutes: currentTime.date.getUTCMinutes(),
       utcHours: currentTime.date.getUTCHours(),
-
       localSeconds: currentTime.date.getSeconds(),
       localMinutes: currentTime.date.getMinutes(),
       localHours: currentTime.date.getHours(),
-
       localeTimeString: currentTime.date.toLocaleTimeString(
         args.localesArgument,
         args.dateTimeFormatOptions
       ),
       ampm: getAMPM(currentTime.date),
       isRunning: currentTime.isRunning,
-
       start: currentTime.start,
       stop: currentTime.stop,
-
       onStart: (callback) => {
         startListeners.push(callback);
       },
@@ -101,11 +94,9 @@ export const useTime = (
       utcSeconds: timeStore.utcSeconds,
       utcMinutes: timeStore.utcMinutes,
       utcHours: timeStore.utcHours,
-
       localSeconds: timeStore.localSeconds,
       localMinutes: timeStore.localMinutes,
       localHours: timeStore.localHours,
-
       localeTimeString: timeStore.localeTimeString,
       ampm: timeStore.ampm,
       isRunning: timeStore.isRunning,
@@ -115,11 +106,9 @@ export const useTime = (
       utcSeconds: timeStore.utcSeconds,
       utcMinutes: timeStore.utcMinutes,
       utcHours: timeStore.utcHours,
-
       localSeconds: timeStore.localSeconds,
       localMinutes: timeStore.localMinutes,
       localHours: timeStore.localHours,
-
       localeTimeString: timeStore.localeTimeString,
       ampm: timeStore.ampm,
       isRunning: timeStore.isRunning,
@@ -153,7 +142,15 @@ export const useTime = (
       timeStore.ampm = getAMPM(currentTime.date);
       timeStore.isRunning = currentTime.isRunning;
 
-      updateListenerAugmentsOf(startListenerArgs, timeStore);
+      startListenerArgs.utcSeconds = timeStore.utcSeconds;
+      startListenerArgs.utcMinutes = timeStore.utcMinutes;
+      startListenerArgs.utcHours = timeStore.utcHours;
+      startListenerArgs.localSeconds = timeStore.localSeconds;
+      startListenerArgs.localMinutes = timeStore.localMinutes;
+      startListenerArgs.localHours = timeStore.localHours;
+      startListenerArgs.localeTimeString = timeStore.localeTimeString;
+      startListenerArgs.ampm = timeStore.ampm;
+      startListenerArgs.isRunning = timeStore.isRunning;
 
       if (startListeners.length === 1) {
         startListeners[0](startListenerArgs);
@@ -180,7 +177,15 @@ export const useTime = (
       timeStore.ampm = getAMPM(currentTime.date);
       timeStore.isRunning = currentTime.isRunning;
 
-      updateListenerAugmentsOf(stopListenerArgs, timeStore);
+      stopListenerArgs.utcSeconds = timeStore.utcSeconds;
+      stopListenerArgs.utcMinutes = timeStore.utcMinutes;
+      stopListenerArgs.utcHours = timeStore.utcHours;
+      stopListenerArgs.localSeconds = timeStore.localSeconds;
+      stopListenerArgs.localMinutes = timeStore.localMinutes;
+      stopListenerArgs.localHours = timeStore.localHours;
+      stopListenerArgs.localeTimeString = timeStore.localeTimeString;
+      stopListenerArgs.ampm = timeStore.ampm;
+      stopListenerArgs.isRunning = timeStore.isRunning;
 
       if (stopListeners.length === 1) {
         stopListeners[0](stopListenerArgs);
@@ -206,7 +211,14 @@ export const useTime = (
       );
       timeStore.ampm = getAMPM(currentTime.date);
 
-      updateListenerAugmentsOf(updateListenerArgs, timeStore);
+      updateListenerArgs.utcSeconds = timeStore.utcSeconds;
+      updateListenerArgs.utcMinutes = timeStore.utcMinutes;
+      updateListenerArgs.utcHours = timeStore.utcHours;
+      updateListenerArgs.localSeconds = timeStore.localSeconds;
+      updateListenerArgs.localMinutes = timeStore.localMinutes;
+      updateListenerArgs.localHours = timeStore.localHours;
+      updateListenerArgs.localeTimeString = timeStore.localeTimeString;
+      updateListenerArgs.ampm = timeStore.ampm;
 
       if (updateListeners.length === 1) {
         updateListeners[0](updateListenerArgs);
@@ -255,7 +267,6 @@ export const useTime = (
   CurrentTime,
   getCurrentLocale,
   getAMPM,
-  updateListenerAugmentsOf,
   createMutable,
   onMount,
   onCleanup

@@ -37,26 +37,3 @@ export const getCurrentLocale = (
       : navigator.language
 )(globalThis.navigator);
 export type GetCurrentLocale = typeof getCurrentLocale;
-
-/**
- * @description
- * Update object of listener arguments.
- *
- * @example
- * updateListenerAugmentsOf(updateListenerArgs, timeStore);
- */
-export const updateListenerAugmentsOf = (
-  args: Writable<UseTimeHookHookListenerArgs>,
-  timeStore: UseTimeHookReturnValue
-) => {
-  args.utcSeconds = timeStore.utcSeconds;
-  args.utcMinutes = timeStore.utcMinutes;
-  args.utcHours = timeStore.utcHours;
-  args.localSeconds = timeStore.localSeconds;
-  args.localMinutes = timeStore.localMinutes;
-  args.localHours = timeStore.localHours;
-  args.localeTimeString = timeStore.localeTimeString;
-  args.ampm = timeStore.ampm;
-  args.isRunning = timeStore.isRunning;
-};
-export type UpdateListenerAugmentsOf = typeof updateListenerAugmentsOf;

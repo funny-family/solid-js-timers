@@ -37,9 +37,7 @@ export type UseStopwatchHookReturnValue = {
   milliseconds: number;
   seconds: number;
   minutes: number;
-
   isRunning: boolean;
-
   onStart: UseStopwatchHookListener;
   onStop: UseStopwatchHookListener;
   onReset: UseStopwatchHookListener;
