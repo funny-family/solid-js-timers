@@ -6,37 +6,37 @@ const C = () => {
   const countdown = new Countdown(Date.now() + 324353);
 
   const countdownStore = createMutable({
-    localeTimeString: countdown.date.toLocaleTimeString(),
+    // localeTimeString: countdown.date.toLocaleTimeString(),
     milliseconds: countdown.milliseconds,
     state: countdown.state,
     isRunning: `${countdown.isRunning}`,
   });
   countdown.onStart(() => {
-    countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
+    // countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
     countdownStore.milliseconds = countdown.milliseconds;
     countdownStore.state = countdown.state;
     countdownStore.isRunning = `${countdown.isRunning}`;
   });
   countdown.onStop(() => {
-    countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
+    // countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
     countdownStore.milliseconds = countdown.milliseconds;
     countdownStore.state = countdown.state;
     countdownStore.isRunning = `${countdown.isRunning}`;
   });
   countdown.onEnd(() => {
-    countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
+    // countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
     countdownStore.milliseconds = countdown.milliseconds;
     countdownStore.state = countdown.state;
     countdownStore.isRunning = `${countdown.isRunning}`;
   });
   countdown.onReset(() => {
-    countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
+    // countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
     countdownStore.milliseconds = countdown.milliseconds;
     countdownStore.state = countdown.state;
     countdownStore.isRunning = `${countdown.isRunning}`;
   });
   countdown.onUpdate(() => {
-    countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
+    // countdownStore.localeTimeString = countdown.date.toLocaleTimeString();
     countdownStore.milliseconds = countdown.milliseconds;
   });
 
@@ -55,7 +55,7 @@ const C = () => {
         </button>
       </div>
       <p>isRunning: {countdownStore.isRunning}</p>
-      <p>localeTimeString: {countdownStore.localeTimeString}</p>
+      {/* <p>localeTimeString: {countdownStore.localeTimeString}</p> */}
       <p>milliseconds: {countdownStore.milliseconds}</p>
     </section>
   );
@@ -67,7 +67,8 @@ export const UseTimerRoute = () => {
     // initialMilliseconds: new Date(Date.now() + 2346827462864).getTime(),
     // initialMilliseconds: new Date('Jan 5, 2024 15:37:25').getTime(),
     // initialMilliseconds: Date.now() + 9457698,
-    initialMilliseconds: Date.now() + 277153982,
+    // initialMilliseconds: Date.now() + 277153982,
+    initialMilliseconds: Date.now() + 277153982333,
     autostart: true,
   });
   // timer.onUpdate((args) => {
