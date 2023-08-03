@@ -68,7 +68,7 @@ export const UseTimerRoute = () => {
     // initialMilliseconds: new Date('Jan 5, 2024 15:37:25').getTime(),
     // initialMilliseconds: Date.now() + 9457698,
     // initialMilliseconds: Date.now() + 277153982,
-    initialMilliseconds: Date.now() + 277153982333,
+    initialMilliseconds: new Date('Jan 1, 2024 15:37:25').getTime(),
     autostart: true,
   });
   // timer.onUpdate((args) => {
