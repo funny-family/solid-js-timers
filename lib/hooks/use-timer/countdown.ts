@@ -5,11 +5,9 @@ type CountdownLister = (callback: CountdownListerCallback) => void;
 
 export interface CountdownInterface {
   milliseconds: number;
-  date: Date;
   isRunning: boolean;
   state: 'idel' | 'running' | 'stopped';
   intervalID: number | null;
-
   start: () => void;
   stop: () => void;
   reset: () => void;
@@ -28,10 +26,11 @@ export type CountdownConstructor = {
 export class Countdown implements CountdownInterface {
   constructor(initialMilliseconds: number) {
     this.#initialMilliseconds = initialMilliseconds;
+    this.milliseconds =
+      this.#initialMilliseconds - this.#getCurrentMilliseconds();
   }
 
   milliseconds: CountdownInterface['milliseconds'] = 0;
-  date: CountdownInterface['date'] = new Date();
   isRunning: CountdownInterface['isRunning'] = false;
   state: CountdownInterface['state'] = 'idel';
   intervalID: CountdownInterface['intervalID'] = null;
@@ -43,14 +42,13 @@ export class Countdown implements CountdownInterface {
 
     this.state = 'running';
     this.isRunning = true;
-    this.date.setTime(this.milliseconds);
 
     if (this.#onStartCallback != null) {
       this.#onStartCallback();
     }
 
     if (this.intervalID == null) {
-      this.intervalID = (setInterval as WindowSetInterval)(this.#update, 1000);
+      this.intervalID = (setInterval as WindowSetInterval)(this.#update, 100);
     }
   };
 
@@ -132,15 +130,13 @@ export class Countdown implements CountdownInterface {
     }
 
     this.milliseconds =
-      this.#initialMilliseconds - (performance.now() + performance.timeOrigin);
-    this.date.setTime(this.milliseconds);
+      this.#initialMilliseconds - this.#getCurrentMilliseconds();
 
     if (this.#onUpdateCallback != null) {
       this.#onUpdateCallback();
     }
   };
-}
 
-/*
-  TODO: add usage of https://github.com/mckamey/countdownjs/tree/master to support more
-*/
+  #getCurrentMilliseconds: () => number = () =>
+    performance.timeOrigin + performance.now();
+}

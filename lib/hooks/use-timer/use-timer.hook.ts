@@ -69,13 +69,10 @@ export const useTimer = (
       minutes: calculateMinutes(countdown.milliseconds),
       hours: calculateHours(countdown.milliseconds),
       days: calculateDays(countdown.milliseconds),
-
-      isRunning: false,
-
+      isRunning: countdown.isRunning,
       start: countdown.start,
       stop: countdown.stop,
       reset: countdown.reset,
-
       onStart: (callback) => {
         startListeners.push(callback);
       },
@@ -92,6 +89,8 @@ export const useTimer = (
         updateListeners.push(callback);
       },
     });
+    console.log(1, countdown);
+    console.log(2, timerStore);
 
     let startListenerArgs: Writable<UseTimerHookCallbackArgs> = {
       seconds: timerStore.seconds,
@@ -158,10 +157,10 @@ export const useTimer = (
     });
 
     countdown.onEnd(() => {
-      timerStore.seconds = calculateSeconds(countdown.milliseconds);
-      timerStore.minutes = calculateMinutes(countdown.milliseconds);
-      timerStore.hours = calculateHours(countdown.milliseconds);
-      timerStore.days = calculateDays(countdown.milliseconds);
+      // timerStore.seconds = calculateSeconds(countdown.milliseconds);
+      // timerStore.minutes = calculateMinutes(countdown.milliseconds);
+      // timerStore.hours = calculateHours(countdown.milliseconds);
+      // timerStore.days = calculateDays(countdown.milliseconds);
       timerStore.isRunning = countdown.isRunning;
 
       endListenerArgs.seconds = timerStore.seconds;
@@ -182,10 +181,10 @@ export const useTimer = (
     });
 
     countdown.onStop(() => {
-      timerStore.seconds = calculateSeconds(countdown.milliseconds);
-      timerStore.minutes = calculateMinutes(countdown.milliseconds);
-      timerStore.hours = calculateHours(countdown.milliseconds);
-      timerStore.days = calculateDays(countdown.milliseconds);
+      // timerStore.seconds = calculateSeconds(countdown.milliseconds);
+      // timerStore.minutes = calculateMinutes(countdown.milliseconds);
+      // timerStore.hours = calculateHours(countdown.milliseconds);
+      // timerStore.days = calculateDays(countdown.milliseconds);
       timerStore.isRunning = countdown.isRunning;
 
       stopListenerArgs.seconds = timerStore.seconds;
@@ -305,6 +304,11 @@ export const useTimer = (
       if (args.autoClearStore) {
         (timerStore as unknown) = null;
       }
+    });
+
+    console.log({
+      countdown,
+      timerStore,
     });
 
     return timerStore;
