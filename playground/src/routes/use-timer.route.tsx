@@ -3,7 +3,7 @@ import { useTimer } from '../../../lib';
 import { Countdown } from '../../../lib/hooks/use-timer';
 
 const C = () => {
-  const countdown = new Countdown(Date.now() + 324353);
+  const countdown = new Countdown(Date.now() + 12000);
 
   const countdownStore = createMutable({
     // localeTimeString: countdown.date.toLocaleTimeString(),
@@ -63,16 +63,46 @@ const C = () => {
 
 export const UseTimerRoute = () => {
   const timer = useTimer({
-    // initialMilliseconds: new Date('Jul 20, 2025 18:49:00').getTime(),
-    // initialMilliseconds: new Date(Date.now() + 2346827462864).getTime(),
-    // initialMilliseconds: new Date('Jan 5, 2024 15:37:25').getTime(),
-    // initialMilliseconds: Date.now() + 9457698,
-    // initialMilliseconds: Date.now() + 277153982,
-    initialMilliseconds: new Date('Jan 1, 2024 15:37:25').getTime(),
-    autostart: true,
+    // initialMilliseconds: Date.now() + 27715,
+    initialMilliseconds: 27715,
+    // initialMilliseconds: Date.now() + 12000,
+    // initialMilliseconds: new Date('Jan 1, 2024 15:37:25').getTime(),
+    // autostart: true,
   });
+
+  timer.onStart((args) => {
+    console.log('timer start 1:', args);
+  });
+  timer.onStart((args) => {
+    console.log('timer start 2:', args);
+  });
+
+  timer.onEnd((args) => {
+    console.log('timer end 1:', args);
+  });
+  timer.onEnd((args) => {
+    console.log('timer end 2:', args);
+  });
+
+  timer.onStop((args) => {
+    console.log('timer stop 1:', args);
+  });
+  timer.onStop((args) => {
+    console.log('timer stop 2:', args);
+  });
+
+  timer.onReset((args) => {
+    console.log('timer reset 1:', args);
+  });
+  timer.onReset((args) => {
+    console.log('timer reset 2:', args);
+  });
+
   // timer.onUpdate((args) => {
   //   console.log('timer update 1:', args);
+  // });
+  // timer.onUpdate((args) => {
+  //   console.log('timer update 2:', args);
   // });
 
   // console.log('timer:', timer);
