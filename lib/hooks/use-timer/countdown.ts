@@ -25,9 +25,9 @@ export type CountdownConstructor = {
 
 export class Countdown implements CountdownInterface {
   constructor(initialMilliseconds: number) {
+    this.milliseconds = initialMilliseconds;
     this.#initialMilliseconds = initialMilliseconds;
-    this.milliseconds =
-      this.#initialMilliseconds - this.#getCurrentMilliseconds();
+    this.#startTime = initialMilliseconds + this.#getCurrentMilliseconds();
   }
 
   milliseconds: CountdownInterface['milliseconds'] = 0;
@@ -42,6 +42,8 @@ export class Countdown implements CountdownInterface {
 
     this.state = 'running';
     this.isRunning = true;
+    this.#startTime =
+      this.#initialMilliseconds + this.#getCurrentMilliseconds();
 
     if (this.#onStartCallback != null) {
       this.#onStartCallback();
@@ -67,13 +69,15 @@ export class Countdown implements CountdownInterface {
   };
 
   reset: CountdownInterface['reset'] = () => {
-    if (this.state === 'idel' && this.milliseconds === 0) {
+    if (this.state === 'idel' && this.milliseconds >= 0) {
       return;
     }
 
-    this.milliseconds = 0;
+    this.milliseconds = this.#initialMilliseconds;
     this.state = 'idel';
     this.isRunning = false;
+    this.#startTime =
+      this.#initialMilliseconds + this.#getCurrentMilliseconds();
     this.clearInterval();
 
     if (this.#onResetCallback != null) {
@@ -109,6 +113,7 @@ export class Countdown implements CountdownInterface {
   };
 
   #initialMilliseconds: number = 0;
+  #startTime: number = 0;
   #onStartCallback: Parameters<CountdownInterface['onStart']>[0] | null = null;
   #onEndCallback: Parameters<CountdownInterface['onEnd']>[0] | null = null;
   #onStopCallback: Parameters<CountdownInterface['onStop']>[0] | null = null;
@@ -117,9 +122,11 @@ export class Countdown implements CountdownInterface {
     null;
 
   #update = () => {
-    if (this.milliseconds < 0) {
+    if (this.milliseconds <= 0) {
+      // if (this.milliseconds < 1000) {
       this.milliseconds = 0;
       this.state = 'idel';
+      this.isRunning = false;
       this.clearInterval();
 
       if (this.#onEndCallback != null) {
@@ -129,8 +136,11 @@ export class Countdown implements CountdownInterface {
       return;
     }
 
-    this.milliseconds =
-      this.#initialMilliseconds - this.#getCurrentMilliseconds();
+    // /* ---- hacky hacky stuff ---- */
+    // this.milliseconds = 0;
+    // /* ---- hacky hacky stuff ---- */
+    this.milliseconds = this.#startTime - this.#getCurrentMilliseconds();
+    console.log('this.milliseconds:', this.milliseconds);
 
     if (this.#onUpdateCallback != null) {
       this.#onUpdateCallback();
