@@ -65,6 +65,8 @@ export const UseTimerRoute = () => {
   const timer = useTimer({
     // initialMilliseconds: Date.now() + 27715,
     initialMilliseconds: 27715,
+    // initialMilliseconds: 5000,
+    // initialMilliseconds: 0,
     // initialMilliseconds: Date.now() + 12000,
     // initialMilliseconds: new Date('Jan 1, 2024 15:37:25').getTime(),
     // autostart: true,
