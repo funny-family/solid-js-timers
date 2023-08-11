@@ -3,8 +3,8 @@ import type { createMutable, createStore } from 'solid-js/store';
 
 export type CreateStore = typeof createStore;
 export type CreateMutable = typeof createMutable;
-export type OnMountFunction = typeof onMount;
-export type OnCleanupFunction = typeof onCleanup;
+export type OnMount = typeof onMount;
+export type OnCleanup = typeof onCleanup;
 
 export type WindowSetInterval = typeof window.setInterval;
 export type WindowClearInterval = typeof window.clearInterval;
