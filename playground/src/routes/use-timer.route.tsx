@@ -64,8 +64,8 @@ const C = () => {
 export const UseTimerRoute = () => {
   const timer = useTimer({
     // initialMilliseconds: Date.now() + 27715,
-    initialMilliseconds: 27715,
-    // initialMilliseconds: 5000,
+    // initialMilliseconds: 27715,
+    initialMilliseconds: 11000,
     // initialMilliseconds: 0,
     // initialMilliseconds: Date.now() + 12000,
     // initialMilliseconds: new Date('Jan 1, 2024 15:37:25').getTime(),
@@ -130,6 +130,7 @@ export const UseTimerRoute = () => {
         {/* <div>value: {timer.milliseconds}</div> */}
         <div>
           <span>time to: </span>
+          <div>{timer.milliseconds}</div>
           {/* <span>
             <b>y:</b> {timer.years.toString().padStart(2, '0')}&nbsp;|&nbsp;
           </span> */}
@@ -150,6 +151,11 @@ export const UseTimerRoute = () => {
           </span>
           <span>
             <b>s:</b> {timer.seconds.toString().padStart(2, '0')}&nbsp;|&nbsp;
+          </span>
+          <span>
+            <b>ms:</b>{' '}
+            {timer.milliseconds.toString().padStart(2, '0').slice(-2)}
+            &nbsp;|&nbsp;
           </span>
         </div>
       </section>
