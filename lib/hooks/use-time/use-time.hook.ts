@@ -14,23 +14,17 @@ import type {
   UseTimeHookListenerCallback,
   UseTimeHookReturnValue,
 } from './use-time.types';
-import type {
-  OnCleanupFunction,
-  CreateMutable,
-  Writable,
-  OnMountFunction,
-} from '../../types';
+import type { OnCleanup, CreateMutable, Writable, OnMount } from '../../types';
 
-export const useTime = (
-  (
-    CurrentTime: CurrentTimeConstructor,
-    getCurrentLocale: GetCurrentLocale,
-    getAMPM: GetAMPM,
-    createMutable: CreateMutable,
-    onMount: OnMountFunction,
-    onCleanup: OnCleanupFunction
-  ) =>
-  (args: Required<UseTimeHookArgs> = {} as any) => {
+export const useTimeSetup = (
+  CurrentTime: CurrentTimeConstructor,
+  getCurrentLocale: GetCurrentLocale,
+  getAMPM: GetAMPM,
+  createMutable: CreateMutable,
+  onMount: OnMount,
+  onCleanup: OnCleanup
+) =>
+  ((args: Required<UseTimeHookArgs> = {} as any) => {
     if (args.localesArgument == null) {
       args.localesArgument = getCurrentLocale();
     }
@@ -262,12 +256,13 @@ export const useTime = (
     });
 
     return timeStore;
-  }
-)(
+  }) as UseTimeHook;
+
+export const useTime = useTimeSetup(
   CurrentTime,
   getCurrentLocale,
   getAMPM,
   createMutable,
   onMount,
   onCleanup
-) as UseTimeHook;
+);

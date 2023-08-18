@@ -37,17 +37,17 @@ export class CurrentTime implements CurrentTimeInterface {
 
     this.isRunning = true;
     this.#state = 'running';
-    this.date.setTime(this.#getCurrentMilliseconds());
-
-    if (this.#onStartCallback != null) {
-      this.#onStartCallback();
-    }
+    this.date.setTime(Date.now());
 
     if (this.#intervalID == null) {
       this.#intervalID = (setInterval as WindowSetInterval)(
         this.#update,
         this.#updateFrequency
       );
+    }
+
+    if (this.#onStartCallback != null) {
+      this.#onStartCallback();
     }
   };
 
@@ -56,9 +56,9 @@ export class CurrentTime implements CurrentTimeInterface {
       return;
     }
 
+    this.clearInterval();
     this.isRunning = false;
     this.#state = 'stopped';
-    this.clearInterval();
 
     if (this.#onStopCallback != null) {
       this.#onStopCallback();
@@ -92,13 +92,10 @@ export class CurrentTime implements CurrentTimeInterface {
   #onUpdateCallback: CurrentTimeListenerCallback | null = null;
 
   #update: () => void = () => {
-    this.date.setTime(this.#getCurrentMilliseconds());
+    this.date.setTime(Date.now());
 
     if (this.#onUpdateCallback != null) {
       this.#onUpdateCallback();
     }
   };
-
-  #getCurrentMilliseconds: () => number = () =>
-    performance.timeOrigin + performance.now();
 }
