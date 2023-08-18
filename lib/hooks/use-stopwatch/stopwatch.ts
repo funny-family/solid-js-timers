@@ -37,16 +37,16 @@ export class Stopwatch implements StopwatchInterface {
     this.#state = 'running';
     this.isRunning = true;
 
-    if (this.#onStartCallback != null) {
-      this.#onStartCallback();
-    }
-
     if (this.#intervalID == null) {
       this.#offset = Date.now();
       this.#intervalID = (setInterval as WindowSetInterval)(
         this.#update,
         this.#delay
       );
+    }
+
+    if (this.#onStartCallback != null) {
+      this.#onStartCallback();
     }
   };
 
@@ -55,9 +55,9 @@ export class Stopwatch implements StopwatchInterface {
       return;
     }
 
+    this.clearInterval();
     this.#state = 'stopped';
     this.isRunning = false;
-    this.clearInterval();
 
     if (this.#onStopCallback != null) {
       this.#onStopCallback();
@@ -65,14 +65,14 @@ export class Stopwatch implements StopwatchInterface {
   };
 
   reset: StopwatchInterface['reset'] = () => {
-    if (this.#state === 'idel' && this.milliseconds === 0) {
+    if (this.#state === 'idel' && this.milliseconds <= 0) {
       return;
     }
 
+    this.clearInterval();
     this.#state = 'idel';
     this.isRunning = false;
     this.milliseconds = 0;
-    this.clearInterval();
 
     if (this.#onResetCallback != null) {
       this.#onResetCallback();

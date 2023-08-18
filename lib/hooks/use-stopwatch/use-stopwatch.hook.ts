@@ -14,23 +14,17 @@ import type {
   UseStopwatchHookListenerCallback,
   UseStopwatchHookReturnValue,
 } from './use-stopwatch.types';
-import type {
-  OnCleanupFunction,
-  OnMountFunction,
-  CreateMutable,
-  Writable,
-} from '../../types';
+import type { OnCleanup, OnMount, CreateMutable, Writable } from '../../types';
 
-export const useStopwatch = (
-  (
-    Stopwatch: StopwatchConstructor,
-    calculateSeconds: CalculateSeconds,
-    calculateMinutes: CalculateMinutes,
-    createMutable: CreateMutable,
-    onMount: OnMountFunction,
-    onCleanup: OnCleanupFunction
-  ) =>
-  (args: Required<UseStopwatchHookArgs> = {} as any) => {
+export const useStopwatchSetup = (
+  Stopwatch: StopwatchConstructor,
+  calculateSeconds: CalculateSeconds,
+  calculateMinutes: CalculateMinutes,
+  createMutable: CreateMutable,
+  onMount: OnMount,
+  onCleanup: OnCleanup
+) =>
+  ((args: Required<UseStopwatchHookArgs> = {} as any) => {
     if (args.initialMilliseconds == null) {
       args.initialMilliseconds = 0;
     }
@@ -242,12 +236,13 @@ export const useStopwatch = (
     });
 
     return stopwatchStore;
-  }
-)(
+  }) as UseStopwatchHook;
+
+export const useStopwatch = useStopwatchSetup(
   Stopwatch,
   calculateSeconds,
   calculateMinutes,
   createMutable,
   onMount,
   onCleanup
-) as UseStopwatchHook;
+);
