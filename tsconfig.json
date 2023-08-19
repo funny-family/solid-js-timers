@@ -4,6 +4,7 @@
     "esModuleInterop": true,
     "target": "ESNext",
     "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
     "skipLibCheck": true,
     "moduleResolution": "node",
     "jsxImportSource": "solid-js",

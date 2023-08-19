@@ -11,6 +11,9 @@ dependencies:
     version: 1.7.6(patch_hash=hqt5g44rqzorujnlyecxhq5whm)
 
 devDependencies:
+  '@babel/plugin-transform-block-scoping':
+    specifier: ^7.22.5
+    version: 7.22.5(@babel/core@7.22.5)
   '@types/node':
     specifier: ^20.3.0
     version: 20.3.0
@@ -288,6 +291,16 @@ packages:
 
   /@babel/plugin-syntax-typescript@7.22.5(@babel/core@7.22.5):
     resolution: {integrity: sha512-1mS2o03i7t1c6VzH6fdQ3OA8tcEIxwG18zIPRp+UY1Ihv6W+XZzBCVxExF9upussPXJ0xE9XRHwMoNs1ep/nRQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.22.5
+      '@babel/helper-plugin-utils': 7.22.5
+    dev: true
+
+  /@babel/plugin-transform-block-scoping@7.22.5(@babel/core@7.22.5):
+    resolution: {integrity: sha512-EcACl1i5fSQ6bt+YGuU/XGCeZKStLmyVGytWkpyhCLeQVA0eu6Wtiw92V+I1T/hnezUv7j74dA/Ro69gWcU+hg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
