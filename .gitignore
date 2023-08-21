@@ -24,3 +24,5 @@ dist-ssr
 
 # Solid js
 *.solid
+
+*.tgz
