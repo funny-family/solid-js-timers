@@ -8,11 +8,11 @@ export interface CountdownInterface {
   isRunning: boolean;
   state: 'idel' | 'running' | 'stopped';
   intervalID: number | null;
+  setMilliseconds: (milliseconds: CountdownInterface['milliseconds']) => void;
+  clearInterval: () => void;
   start: () => void;
-  resume: () => void;
   stop: () => void;
   reset: () => void;
-  clearInterval: () => void;
   onStart: CountdownLister;
   onEnd: CountdownLister;
   onStop: CountdownLister;
@@ -21,19 +21,19 @@ export interface CountdownInterface {
 }
 
 export type CountdownConstructor = {
-  new (initialMilliseconds: number): Countdown;
+  new (): Readonly<Countdown>;
 };
 
 export class Countdown implements CountdownInterface {
-  constructor(initialMilliseconds: number) {
-    this.milliseconds = initialMilliseconds;
-    this.#initialMilliseconds = initialMilliseconds;
-  }
-
   milliseconds: CountdownInterface['milliseconds'] = 0;
   state: CountdownInterface['state'] = 'idel';
   isRunning: CountdownInterface['isRunning'] = false;
   intervalID: CountdownInterface['intervalID'] = null;
+
+  setMilliseconds: CountdownInterface['setMilliseconds'] = (milliseconds) => {
+    this.milliseconds = milliseconds;
+    this.#offsetTime = this.milliseconds + Date.now();
+  };
 
   start: CountdownInterface['start'] = () => {
     if (this.state === 'running' || this.milliseconds <= 0) {
@@ -42,7 +42,7 @@ export class Countdown implements CountdownInterface {
 
     this.state = 'running';
     this.isRunning = true;
-    this.#startTime = this.milliseconds + Date.now();
+    this.#offsetTime = this.milliseconds + Date.now();
 
     if (this.intervalID == null) {
       this.intervalID = (setInterval as WindowSetInterval)(this.#update, 100);
@@ -50,21 +50,6 @@ export class Countdown implements CountdownInterface {
 
     if (this.#onStartCallback != null) {
       this.#onStartCallback();
-    }
-
-    console.log('start:', this);
-  };
-
-  resume: CountdownInterface['resume'] = () => {
-    if (this.isRunning === false) {
-      return;
-    }
-
-    this.state = 'running';
-    this.isRunning = true;
-
-    if (this.intervalID == null) {
-      this.intervalID = (setInterval as WindowSetInterval)(this.#update, 1000);
     }
   };
 
@@ -80,26 +65,21 @@ export class Countdown implements CountdownInterface {
     if (this.#onStopCallback != null) {
       this.#onStopCallback();
     }
-
-    console.log('stop:', this);
   };
 
   reset: CountdownInterface['reset'] = () => {
-    // if (this.state === 'idel') {
-    //   return;
-    // }
+    if (this.milliseconds <= 0) {
+      return;
+    }
 
     this.clearInterval();
-    this.milliseconds = this.#initialMilliseconds;
+    this.milliseconds = 0;
     this.state = 'idel';
     this.isRunning = false;
-    // this.#startTime = this.#initialMilliseconds + Date.now();
 
     if (this.#onResetCallback != null) {
       this.#onResetCallback();
     }
-
-    console.log('reset:', this);
   };
 
   clearInterval: CountdownInterface['clearInterval'] = () => {
@@ -129,18 +109,15 @@ export class Countdown implements CountdownInterface {
     this.#onUpdateCallback = callback;
   };
 
-  #startTime: number = 0;
-  #initialMilliseconds: number = 0;
-  #onStartCallback: Parameters<CountdownInterface['onStart']>[0] | null = null;
-  #onEndCallback: Parameters<CountdownInterface['onEnd']>[0] | null = null;
-  #onStopCallback: Parameters<CountdownInterface['onStop']>[0] | null = null;
-  #onResetCallback: Parameters<CountdownInterface['onReset']>[0] | null = null;
-  #onUpdateCallback: Parameters<CountdownInterface['onUpdate']>[0] | null =
-    null;
+  #offsetTime: number = 0;
+  #onStartCallback: CountdownListerCallback | null = null;
+  #onEndCallback: CountdownListerCallback | null = null;
+  #onStopCallback: CountdownListerCallback | null = null;
+  #onResetCallback: CountdownListerCallback | null = null;
+  #onUpdateCallback: CountdownListerCallback | null = null;
 
   #update = () => {
-    this.milliseconds = this.#startTime - Date.now();
-    console.log('this.milliseconds:', this.milliseconds, this);
+    this.milliseconds = this.#offsetTime - Date.now();
 
     if (this.milliseconds <= 0) {
       this.clearInterval();

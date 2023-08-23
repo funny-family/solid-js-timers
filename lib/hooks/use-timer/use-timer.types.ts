@@ -5,11 +5,10 @@ import type {
   AutoClearableStore,
   AutoClearableTimer,
   AutoStartable,
+  RequireAtLeastOne,
 } from './../../types';
 
-export type UseTimerHookArgs = {
-  initialMilliseconds: number;
-} & Partial<AutoStartable> &
+export type UseTimerHookArgs = Partial<AutoStartable> &
   Partial<AutoClearableInterval> &
   Partial<AutoClearableTimer> &
   Partial<AutoClearableListeners> &
@@ -19,11 +18,7 @@ export type UseTimerHookArgs = {
 export type UseTimerHookCallbackArgs = Readonly<
   Pick<
     UseTimerHookReturnValue,
-    | 'seconds'
-    | 'minutes'
-    | 'hours'
-    | 'days'
-    | 'isRunning'
+    'milliseconds' | 'seconds' | 'minutes' | 'hours' | 'days' | 'isRunning'
   >
 >;
 
@@ -36,17 +31,18 @@ export type UseTimerHookListener = (
 ) => void;
 
 export type UseTimerHookReturnValue = {
+  milliseconds: number;
   seconds: number;
   minutes: number;
   hours: number;
   days: number;
-
   isRunning: boolean;
-
+  setMilliseconds: (
+    milliseconds: UseTimerHookReturnValue['milliseconds']
+  ) => void;
   start: () => void;
   stop: () => void;
   reset: () => void;
-
   onStart: UseTimerHookListener;
   onEnd: UseTimerHookListener;
   onStop: UseTimerHookListener;
@@ -54,4 +50,6 @@ export type UseTimerHookReturnValue = {
   onUpdate: UseTimerHookListener;
 };
 
-export type UseTimerHook = (args: UseTimerHookArgs) => UseTimerHookReturnValue;
+export type UseTimerHook = (
+  args?: RequireAtLeastOne<UseTimerHookArgs>
+) => Readonly<UseTimerHookReturnValue>;
