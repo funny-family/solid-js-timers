@@ -1,10 +1,11 @@
-import type { onCleanup, onMount } from 'solid-js';
+import type { batch, onCleanup, onMount } from 'solid-js';
 import type { createMutable, createStore } from 'solid-js/store';
 
 export type CreateStore = typeof createStore;
 export type CreateMutable = typeof createMutable;
 export type OnMount = typeof onMount;
 export type OnCleanup = typeof onCleanup;
+export type Batch = typeof batch;
 
 export type WindowSetInterval = typeof window.setInterval;
 export type WindowClearInterval = typeof window.clearInterval;

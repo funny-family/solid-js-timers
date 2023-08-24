@@ -8,8 +8,7 @@ import type {
   RequireAtLeastOne,
 } from './../../types';
 
-export type UseTimerHookArgs = Partial<AutoStartable> &
-  Partial<AutoClearableInterval> &
+export type UseTimerHookArgs = Partial<AutoClearableInterval> &
   Partial<AutoClearableTimer> &
   Partial<AutoClearableListeners> &
   Partial<AutoClearableListersArgs> &

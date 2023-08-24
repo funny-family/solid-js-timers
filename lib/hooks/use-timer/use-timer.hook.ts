@@ -1,4 +1,4 @@
-import { onCleanup, onMount } from 'solid-js';
+import { batch, onCleanup } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import { Countdown, CountdownConstructor } from './countdown';
 import {
@@ -14,17 +14,16 @@ import type {
   UseTimerHookListenerCallback,
   UseTimerHookReturnValue,
 } from './use-timer.types';
-import type { CreateMutable, OnCleanup, OnMount, Writable } from '../../types';
+import type { Batch, CreateMutable, OnCleanup, Writable } from '../../types';
 
 export const useTimerSetup = (
   Countdown: CountdownConstructor,
   createMutable: CreateMutable,
-  onMount: OnMount,
+  batch: Batch,
   onCleanup: OnCleanup
 ) =>
   ((args: Required<UseTimerHookArgs>) => {
     (args as unknown) = {};
-    args.autostart ||= false;
     args.autoClearInterval ||= true;
     args.autoClearTimer ||= true;
     args.autoClearListeners ||= true;
@@ -48,11 +47,13 @@ export const useTimerSetup = (
       setMilliseconds(milliseconds) {
         countdown.setMilliseconds(milliseconds);
 
-        this.milliseconds = milliseconds;
-        this.seconds = calculateSeconds(milliseconds);
-        this.minutes = calculateMinutes(milliseconds);
-        this.hours = calculateHours(milliseconds);
-        this.days = calculateDays(milliseconds);
+        batch(() => {
+          this.milliseconds = milliseconds;
+          this.seconds = calculateSeconds(milliseconds);
+          this.minutes = calculateMinutes(milliseconds);
+          this.hours = calculateHours(milliseconds);
+          this.days = calculateDays(milliseconds);
+        });
       },
       start: countdown.start,
       stop: countdown.stop,
@@ -74,7 +75,43 @@ export const useTimerSetup = (
       },
     });
 
-    let lArgs: Writable<UseTimerHookCallbackArgs> = {
+    let startListenerArgs: Writable<UseTimerHookCallbackArgs> = {
+      milliseconds: timerStore.milliseconds,
+      seconds: timerStore.seconds,
+      minutes: timerStore.minutes,
+      hours: timerStore.hours,
+      days: timerStore.days,
+      isRunning: timerStore.isRunning,
+    };
+
+    let endListenerArgs: Writable<UseTimerHookCallbackArgs> = {
+      milliseconds: timerStore.milliseconds,
+      seconds: timerStore.seconds,
+      minutes: timerStore.minutes,
+      hours: timerStore.hours,
+      days: timerStore.days,
+      isRunning: timerStore.isRunning,
+    };
+
+    let stopListenerArgs: Writable<UseTimerHookCallbackArgs> = {
+      milliseconds: timerStore.milliseconds,
+      seconds: timerStore.seconds,
+      minutes: timerStore.minutes,
+      hours: timerStore.hours,
+      days: timerStore.days,
+      isRunning: timerStore.isRunning,
+    };
+
+    let resetListenerArgs: Writable<UseTimerHookCallbackArgs> = {
+      milliseconds: timerStore.milliseconds,
+      seconds: timerStore.seconds,
+      minutes: timerStore.minutes,
+      hours: timerStore.hours,
+      days: timerStore.days,
+      isRunning: timerStore.isRunning,
+    };
+
+    let updateListenerArgs: Writable<UseTimerHookCallbackArgs> = {
       milliseconds: timerStore.milliseconds,
       seconds: timerStore.seconds,
       minutes: timerStore.minutes,
@@ -86,45 +123,47 @@ export const useTimerSetup = (
     countdown.onStart(() => {
       timerStore.isRunning = countdown.isRunning;
 
-      lArgs.milliseconds = timerStore.milliseconds;
-      lArgs.seconds = timerStore.seconds;
-      lArgs.minutes = timerStore.minutes;
-      lArgs.hours = timerStore.hours;
-      lArgs.days = timerStore.days;
-      lArgs.isRunning = timerStore.isRunning;
+      startListenerArgs.milliseconds = timerStore.milliseconds;
+      startListenerArgs.seconds = timerStore.seconds;
+      startListenerArgs.minutes = timerStore.minutes;
+      startListenerArgs.hours = timerStore.hours;
+      startListenerArgs.days = timerStore.days;
+      startListenerArgs.isRunning = timerStore.isRunning;
 
       if (startListeners.length === 1) {
-        startListeners[0](lArgs);
+        startListeners[0](startListenerArgs);
       }
 
       if (startListeners.length > 1) {
         for (let i = 0; i < startListeners.length; i++) {
-          startListeners[i](lArgs);
+          startListeners[i](startListenerArgs);
         }
       }
     });
 
     countdown.onEnd(() => {
-      timerStore.milliseconds = 0;
-      timerStore.minutes = 0;
-      timerStore.hours = 0;
-      timerStore.days = 0;
-      timerStore.isRunning = countdown.isRunning;
+      batch(() => {
+        timerStore.milliseconds = 0;
+        timerStore.minutes = 0;
+        timerStore.hours = 0;
+        timerStore.days = 0;
+        timerStore.isRunning = countdown.isRunning;
+      });
 
-      lArgs.milliseconds = timerStore.milliseconds;
-      lArgs.seconds = timerStore.seconds;
-      lArgs.minutes = timerStore.minutes;
-      lArgs.hours = timerStore.hours;
-      lArgs.days = timerStore.days;
-      lArgs.isRunning = timerStore.isRunning;
+      endListenerArgs.milliseconds = timerStore.milliseconds;
+      endListenerArgs.seconds = timerStore.seconds;
+      endListenerArgs.minutes = timerStore.minutes;
+      endListenerArgs.hours = timerStore.hours;
+      endListenerArgs.days = timerStore.days;
+      endListenerArgs.isRunning = timerStore.isRunning;
 
       if (endListeners.length === 1) {
-        endListeners[0](lArgs);
+        endListeners[0](endListenerArgs);
       }
 
       if (endListeners.length > 1) {
         for (let i = 0; i < endListeners.length; i++) {
-          endListeners[i](lArgs);
+          endListeners[i](endListenerArgs);
         }
       }
     });
@@ -132,77 +171,75 @@ export const useTimerSetup = (
     countdown.onStop(() => {
       timerStore.isRunning = countdown.isRunning;
 
-      lArgs.milliseconds = timerStore.milliseconds;
-      lArgs.seconds = timerStore.seconds;
-      lArgs.minutes = timerStore.minutes;
-      lArgs.hours = timerStore.hours;
-      lArgs.days = timerStore.days;
-      lArgs.isRunning = timerStore.isRunning;
+      stopListenerArgs.milliseconds = timerStore.milliseconds;
+      stopListenerArgs.seconds = timerStore.seconds;
+      stopListenerArgs.minutes = timerStore.minutes;
+      stopListenerArgs.hours = timerStore.hours;
+      stopListenerArgs.days = timerStore.days;
+      stopListenerArgs.isRunning = timerStore.isRunning;
 
       if (stopListeners.length === 1) {
-        stopListeners[0](lArgs);
+        stopListeners[0](stopListenerArgs);
       }
 
       if (stopListeners.length > 1) {
         for (let i = 0; i < stopListeners.length; i++) {
-          stopListeners[i](lArgs);
+          stopListeners[i](stopListenerArgs);
         }
       }
     });
 
     countdown.onReset(() => {
-      timerStore.milliseconds = 0;
-      timerStore.seconds = 0;
-      timerStore.minutes = 0;
-      timerStore.hours = 0;
-      timerStore.days = 0;
-      timerStore.isRunning = countdown.isRunning;
+      batch(() => {
+        timerStore.milliseconds = 0;
+        timerStore.seconds = 0;
+        timerStore.minutes = 0;
+        timerStore.hours = 0;
+        timerStore.days = 0;
+        timerStore.isRunning = countdown.isRunning;
+      });
 
-      lArgs.milliseconds = timerStore.milliseconds;
-      lArgs.seconds = timerStore.seconds;
-      lArgs.minutes = timerStore.minutes;
-      lArgs.hours = timerStore.hours;
-      lArgs.days = timerStore.days;
-      lArgs.isRunning = timerStore.isRunning;
+      resetListenerArgs.milliseconds = timerStore.milliseconds;
+      resetListenerArgs.seconds = timerStore.seconds;
+      resetListenerArgs.minutes = timerStore.minutes;
+      resetListenerArgs.hours = timerStore.hours;
+      resetListenerArgs.days = timerStore.days;
+      resetListenerArgs.isRunning = timerStore.isRunning;
 
       if (resetListeners.length === 1) {
-        resetListeners[0](lArgs);
+        resetListeners[0](resetListenerArgs);
       }
 
       if (resetListeners.length > 1) {
         for (let i = 0; i < resetListeners.length; i++) {
-          resetListeners[i](lArgs);
+          resetListeners[i](resetListenerArgs);
         }
       }
     });
 
     countdown.onUpdate(() => {
-      timerStore.milliseconds = countdown.milliseconds;
-      timerStore.seconds = calculateSeconds(countdown.milliseconds);
-      timerStore.minutes = calculateMinutes(countdown.milliseconds);
-      timerStore.hours = calculateHours(countdown.milliseconds);
-      timerStore.days = calculateDays(countdown.milliseconds);
+      batch(() => {
+        timerStore.milliseconds = countdown.milliseconds;
+        timerStore.seconds = calculateSeconds(countdown.milliseconds);
+        timerStore.minutes = calculateMinutes(countdown.milliseconds);
+        timerStore.hours = calculateHours(countdown.milliseconds);
+        timerStore.days = calculateDays(countdown.milliseconds);
+      });
 
-      lArgs.milliseconds = timerStore.milliseconds;
-      lArgs.seconds = timerStore.seconds;
-      lArgs.minutes = timerStore.minutes;
-      lArgs.hours = timerStore.hours;
-      lArgs.days = timerStore.days;
+      updateListenerArgs.milliseconds = timerStore.milliseconds;
+      updateListenerArgs.seconds = timerStore.seconds;
+      updateListenerArgs.minutes = timerStore.minutes;
+      updateListenerArgs.hours = timerStore.hours;
+      updateListenerArgs.days = timerStore.days;
 
       if (updateListeners.length === 1) {
-        updateListeners[0](lArgs);
+        updateListeners[0](updateListenerArgs);
       }
 
       if (updateListeners.length > 1) {
         for (let i = 0; i < updateListeners.length; i++) {
-          updateListeners[i](lArgs);
+          updateListeners[i](updateListenerArgs);
         }
-      }
-    });
-
-    onMount(() => {
-      if (args.autostart) {
-        countdown.start();
       }
     });
 
@@ -224,7 +261,11 @@ export const useTimerSetup = (
       }
 
       if (args.autoClearListersArgs) {
-        (lArgs as unknown) = null;
+        (startListenerArgs as unknown) = null;
+        (endListenerArgs as unknown) = null;
+        (stopListenerArgs as unknown) = null;
+        (resetListenerArgs as unknown) = null;
+        (updateListenerArgs as unknown) = null;
       }
 
       if (args.autoClearStore) {
@@ -238,6 +279,6 @@ export const useTimerSetup = (
 export const useTimer = useTimerSetup(
   Countdown,
   createMutable,
-  onMount,
+  batch,
   onCleanup
 );
