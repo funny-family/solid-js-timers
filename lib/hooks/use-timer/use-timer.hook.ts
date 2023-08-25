@@ -44,15 +44,15 @@ export const useTimerSetup = (
       hours: 0,
       days: 0,
       isRunning: countdown.isRunning,
-      setMilliseconds(milliseconds) {
-        countdown.setMilliseconds(milliseconds);
+      setMilliseconds(predicate) {
+        countdown.setMilliseconds(predicate());
 
         batch(() => {
-          this.milliseconds = milliseconds;
-          this.seconds = calculateSeconds(milliseconds);
-          this.minutes = calculateMinutes(milliseconds);
-          this.hours = calculateHours(milliseconds);
-          this.days = calculateDays(milliseconds);
+          this.milliseconds = countdown.milliseconds;
+          this.seconds = calculateSeconds(countdown.milliseconds);
+          this.minutes = calculateMinutes(countdown.milliseconds);
+          this.hours = calculateHours(countdown.milliseconds);
+          this.days = calculateDays(countdown.milliseconds);
         });
       },
       start: countdown.start,
@@ -76,48 +76,48 @@ export const useTimerSetup = (
     });
 
     let startListenerArgs: Writable<UseTimerHookCallbackArgs> = {
-      milliseconds: timerStore.milliseconds,
-      seconds: timerStore.seconds,
-      minutes: timerStore.minutes,
-      hours: timerStore.hours,
-      days: timerStore.days,
+      milliseconds: 0,
+      seconds: 0,
+      minutes: 0,
+      hours: 0,
+      days: 0,
       isRunning: timerStore.isRunning,
     };
 
     let endListenerArgs: Writable<UseTimerHookCallbackArgs> = {
-      milliseconds: timerStore.milliseconds,
-      seconds: timerStore.seconds,
-      minutes: timerStore.minutes,
-      hours: timerStore.hours,
-      days: timerStore.days,
-      isRunning: timerStore.isRunning,
+      milliseconds: 0,
+      seconds: 0,
+      minutes: 0,
+      hours: 0,
+      days: 0,
+      isRunning: false,
     };
 
     let stopListenerArgs: Writable<UseTimerHookCallbackArgs> = {
-      milliseconds: timerStore.milliseconds,
-      seconds: timerStore.seconds,
-      minutes: timerStore.minutes,
-      hours: timerStore.hours,
-      days: timerStore.days,
-      isRunning: timerStore.isRunning,
+      milliseconds: 0,
+      seconds: 0,
+      minutes: 0,
+      hours: 0,
+      days: 0,
+      isRunning: false,
     };
 
     let resetListenerArgs: Writable<UseTimerHookCallbackArgs> = {
-      milliseconds: timerStore.milliseconds,
-      seconds: timerStore.seconds,
-      minutes: timerStore.minutes,
-      hours: timerStore.hours,
-      days: timerStore.days,
-      isRunning: timerStore.isRunning,
+      milliseconds: 0,
+      seconds: 0,
+      minutes: 0,
+      hours: 0,
+      days: 0,
+      isRunning: false,
     };
 
     let updateListenerArgs: Writable<UseTimerHookCallbackArgs> = {
-      milliseconds: timerStore.milliseconds,
-      seconds: timerStore.seconds,
-      minutes: timerStore.minutes,
-      hours: timerStore.hours,
-      days: timerStore.days,
-      isRunning: timerStore.isRunning,
+      milliseconds: 0,
+      seconds: 0,
+      minutes: 0,
+      hours: 0,
+      days: 0,
+      isRunning: false,
     };
 
     countdown.onStart(() => {

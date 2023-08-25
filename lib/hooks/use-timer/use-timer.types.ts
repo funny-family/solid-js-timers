@@ -37,7 +37,7 @@ export type UseTimerHookReturnValue = {
   days: number;
   isRunning: boolean;
   setMilliseconds: (
-    milliseconds: UseTimerHookReturnValue['milliseconds']
+    predicate: () => UseTimerHookReturnValue['milliseconds']
   ) => void;
   start: () => void;
   stop: () => void;

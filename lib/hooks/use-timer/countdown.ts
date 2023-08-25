@@ -4,24 +4,26 @@ type CountdownListerCallback = () => void;
 type CountdownLister = (callback: CountdownListerCallback) => void;
 
 export interface CountdownInterface {
-  milliseconds: number;
-  isRunning: boolean;
-  state: 'idel' | 'running' | 'stopped';
-  intervalID: number | null;
-  setMilliseconds: (milliseconds: CountdownInterface['milliseconds']) => void;
-  clearInterval: () => void;
-  start: () => void;
-  stop: () => void;
-  reset: () => void;
-  onStart: CountdownLister;
-  onEnd: CountdownLister;
-  onStop: CountdownLister;
-  onReset: CountdownLister;
-  onUpdate: CountdownLister;
+  readonly milliseconds: number;
+  readonly isRunning: boolean;
+  readonly state: 'idel' | 'running' | 'stopped';
+  readonly intervalID: number | null;
+  readonly setMilliseconds: (
+    milliseconds: CountdownInterface['milliseconds']
+  ) => void;
+  readonly clearInterval: () => void;
+  readonly start: () => void;
+  readonly stop: () => void;
+  readonly reset: () => void;
+  readonly onStart: CountdownLister;
+  readonly onEnd: CountdownLister;
+  readonly onStop: CountdownLister;
+  readonly onReset: CountdownLister;
+  readonly onUpdate: CountdownLister;
 }
 
 export type CountdownConstructor = {
-  new (): Readonly<Countdown>;
+  new (): Countdown;
 };
 
 export class Countdown implements CountdownInterface {
