@@ -50,7 +50,7 @@ export const useStopwatchSetup = (
         });
 
         // support only till 60 min (1 hour)
-        if (stopwatch.milliseconds >= 3600000) {
+        if (milliseconds >= 3600000) {
           stopwatch.reset();
         } else {
           stopwatch.milliseconds = milliseconds;
@@ -170,6 +170,13 @@ export const useStopwatchSetup = (
     });
 
     stopwatch.onUpdate(() => {
+      // support only till 60 min (1 hour)
+      if (stopwatch.milliseconds >= 3600000) {
+        stopwatch.reset();
+
+        return;
+      }
+
       batch(() => {
         stopwatchStore.milliseconds = stopwatch.milliseconds;
         stopwatchStore.seconds = calculateSeconds(stopwatch.milliseconds);
@@ -189,13 +196,6 @@ export const useStopwatchSetup = (
         for (let i = 0; i < updateListeners.length; i++) {
           updateListeners[i](updateListenerArgs);
         }
-      }
-
-      // support only till 60 min (1 hour)
-      if (stopwatch.milliseconds >= 3600000) {
-        stopwatch.reset();
-
-        return;
       }
     });
 
