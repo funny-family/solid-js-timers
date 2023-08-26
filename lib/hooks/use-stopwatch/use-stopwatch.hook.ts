@@ -1,4 +1,4 @@
-import { onCleanup, onMount } from 'solid-js';
+import { batch, onCleanup } from 'solid-js';
 import { createMutable } from 'solid-js/store';
 import { type StopwatchConstructor, Stopwatch } from './stopwatch';
 import {
@@ -14,56 +14,54 @@ import type {
   UseStopwatchHookListenerCallback,
   UseStopwatchHookReturnValue,
 } from './use-stopwatch.types';
-import type { OnCleanup, OnMount, CreateMutable, Writable } from '../../types';
+import type { OnCleanup, CreateMutable, Writable, Batch } from '../../types';
 
 export const useStopwatchSetup = (
   Stopwatch: StopwatchConstructor,
   calculateSeconds: CalculateSeconds,
   calculateMinutes: CalculateMinutes,
   createMutable: CreateMutable,
-  onMount: OnMount,
+  batch: Batch,
   onCleanup: OnCleanup
 ) =>
-  ((args: Required<UseStopwatchHookArgs> = {} as any) => {
-    if (args.initialMilliseconds == null) {
-      args.initialMilliseconds = 0;
-    }
-
-    if (args.autostart == null) {
-      args.autostart = false;
-    }
-
-    if (args.autoClearInterval == null) {
-      args.autoClearInterval = true;
-    }
-
-    if (args.autoClearTimer == null) {
-      args.autoClearTimer = true;
-    }
-
-    if (args.autoClearListeners == null) {
-      args.autoClearListeners = true;
-    }
-
-    if (args.autoClearListersArgs == null) {
-      args.autoClearListersArgs = true;
-    }
-
-    if (args.autoClearStore == null) {
-      args.autoClearStore = true;
-    }
+  ((args: Required<UseStopwatchHookArgs>) => {
+    (args as unknown) = {};
+    args.autoClearInterval ||= true;
+    args.autoClearTimer ||= true;
+    args.autoClearListeners ||= true;
+    args.autoClearListersArgs ||= true;
+    args.autoClearStore ||= true;
 
     let startListeners = Array<UseStopwatchHookListenerCallback>();
     let stopListeners = Array<UseStopwatchHookListenerCallback>();
     let resetListeners = Array<UseStopwatchHookListenerCallback>();
     let updateListeners = Array<UseStopwatchHookListenerCallback>();
 
-    let stopwatch = new Stopwatch(args.initialMilliseconds, 90);
+    let stopwatch = new Stopwatch();
+    stopwatch.updateFrequency = 90;
     let stopwatchStore = createMutable<UseStopwatchHookReturnValue>({
-      milliseconds: stopwatch.milliseconds,
-      seconds: calculateSeconds(stopwatch.milliseconds),
-      minutes: calculateMinutes(stopwatch.milliseconds),
+      milliseconds: 0,
+      seconds: 0,
+      minutes: 0,
       isRunning: stopwatch.isRunning,
+      setMilliseconds(predicate) {
+        const milliseconds = predicate({
+          currentMilliseconds: stopwatch.milliseconds,
+        });
+
+        // support only till 60 min (1 hour)
+        if (stopwatch.milliseconds >= 3600000) {
+          stopwatch.reset();
+        } else {
+          stopwatch.milliseconds = milliseconds;
+        }
+
+        batch(() => {
+          this.milliseconds = stopwatch.milliseconds;
+          this.seconds = calculateSeconds(stopwatch.milliseconds);
+          this.minutes = calculateMinutes(stopwatch.milliseconds);
+        });
+      },
       start: stopwatch.start,
       stop: stopwatch.stop,
       reset: stopwatch.reset,
@@ -81,38 +79,32 @@ export const useStopwatchSetup = (
       },
     });
 
-    // support only till 60 min (1 hour)
-    if (args.initialMilliseconds >= 3600000) {
-      args.initialMilliseconds = 0;
-    }
-    stopwatch.milliseconds = args.initialMilliseconds;
-
     let startListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
-      milliseconds: stopwatchStore.milliseconds,
-      seconds: stopwatchStore.seconds,
-      minutes: stopwatchStore.minutes,
-      isRunning: stopwatchStore.isRunning,
+      milliseconds: 0,
+      seconds: 0,
+      minutes: 0,
+      isRunning: false,
     };
 
     let stopListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
-      milliseconds: stopwatchStore.milliseconds,
-      seconds: stopwatchStore.seconds,
-      minutes: stopwatchStore.minutes,
-      isRunning: stopwatchStore.isRunning,
+      milliseconds: 0,
+      seconds: 0,
+      minutes: 0,
+      isRunning: false,
     };
 
     let resetListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
-      milliseconds: stopwatchStore.milliseconds,
-      seconds: stopwatchStore.seconds,
-      minutes: stopwatchStore.minutes,
-      isRunning: stopwatchStore.isRunning,
+      milliseconds: 0,
+      seconds: 0,
+      minutes: 0,
+      isRunning: false,
     };
 
     let updateListenerArgs: Writable<UseStopwatchHookListenerArgs> = {
-      milliseconds: stopwatchStore.milliseconds,
-      seconds: stopwatchStore.seconds,
-      minutes: stopwatchStore.minutes,
-      isRunning: stopwatchStore.isRunning,
+      milliseconds: 0,
+      seconds: 0,
+      minutes: 0,
+      isRunning: false,
     };
 
     stopwatch.onStart(() => {
@@ -154,10 +146,12 @@ export const useStopwatchSetup = (
     });
 
     stopwatch.onReset(() => {
-      stopwatchStore.milliseconds = 0;
-      stopwatchStore.seconds = 0;
-      stopwatchStore.minutes = 0;
-      stopwatchStore.isRunning = stopwatch.isRunning;
+      batch(() => {
+        stopwatchStore.milliseconds = 0;
+        stopwatchStore.seconds = 0;
+        stopwatchStore.minutes = 0;
+        stopwatchStore.isRunning = stopwatch.isRunning;
+      });
 
       resetListenerArgs.milliseconds = stopwatchStore.milliseconds;
       resetListenerArgs.seconds = stopwatchStore.seconds;
@@ -176,19 +170,16 @@ export const useStopwatchSetup = (
     });
 
     stopwatch.onUpdate(() => {
-      stopwatchStore.milliseconds = stopwatch.milliseconds;
-      stopwatchStore.seconds = calculateSeconds(stopwatch.milliseconds);
-      stopwatchStore.minutes = calculateMinutes(stopwatch.milliseconds);
-      stopwatchStore.isRunning = stopwatch.isRunning;
+      batch(() => {
+        stopwatchStore.milliseconds = stopwatch.milliseconds;
+        stopwatchStore.seconds = calculateSeconds(stopwatch.milliseconds);
+        stopwatchStore.minutes = calculateMinutes(stopwatch.milliseconds);
+        stopwatchStore.isRunning = stopwatch.isRunning;
+      });
 
       updateListenerArgs.milliseconds = stopwatchStore.milliseconds;
       updateListenerArgs.seconds = stopwatchStore.seconds;
       updateListenerArgs.minutes = stopwatchStore.minutes;
-
-      // support only till 60 min (1 hour)
-      if (stopwatch.milliseconds >= 3600000) {
-        stopwatch.reset();
-      }
 
       if (updateListeners.length === 1) {
         updateListeners[0](updateListenerArgs);
@@ -199,11 +190,12 @@ export const useStopwatchSetup = (
           updateListeners[i](updateListenerArgs);
         }
       }
-    });
 
-    onMount(() => {
-      if (args.autostart) {
-        stopwatch.start();
+      // support only till 60 min (1 hour)
+      if (stopwatch.milliseconds >= 3600000) {
+        stopwatch.reset();
+
+        return;
       }
     });
 
@@ -243,6 +235,6 @@ export const useStopwatch = useStopwatchSetup(
   calculateSeconds,
   calculateMinutes,
   createMutable,
-  onMount,
+  batch,
   onCleanup
 );

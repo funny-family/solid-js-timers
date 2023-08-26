@@ -9,10 +9,7 @@ import type {
   AutoClearableStore,
 } from './../../types';
 
-export type UseStopwatchHookArgs = {
-  initialMilliseconds?: number;
-} & Partial<AutoStartable> &
-  Partial<AutoClearableInterval> &
+export type UseStopwatchHookArgs = Partial<AutoClearableInterval> &
   Partial<AutoClearableTimer> &
   Partial<AutoClearableListeners> &
   Partial<AutoClearableListersArgs> &
@@ -38,6 +35,11 @@ export type UseStopwatchHookReturnValue = {
   seconds: number;
   minutes: number;
   isRunning: boolean;
+  setMilliseconds: (
+    predicate: (args: {
+      currentMilliseconds: UseStopwatchHookReturnValue['milliseconds'];
+    }) => UseStopwatchHookReturnValue['milliseconds']
+  ) => void;
   onStart: UseStopwatchHookListener;
   onStop: UseStopwatchHookListener;
   onReset: UseStopwatchHookListener;
