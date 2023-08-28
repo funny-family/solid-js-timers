@@ -1,12 +1,7 @@
-import { onMount, onCleanup } from 'solid-js';
+import { onCleanup, batch, createSignal } from 'solid-js';
 import { createMutable } from 'solid-js/store';
-import { type CurrentTimeConstructor, CurrentTime } from './current-time';
-import {
-  type GetCurrentLocale,
-  type GetAMPM,
-  getCurrentLocale,
-  getAMPM,
-} from './use-time.utils';
+import { type CurrentDateConstructor, CurrentDate } from './current-date';
+import { type GetAMPM, getAMPM } from './use-time.utils';
 import type {
   UseTimeHook,
   UseTimeHookArgs,
@@ -14,65 +9,46 @@ import type {
   UseTimeHookListenerCallback,
   UseTimeHookReturnValue,
 } from './use-time.types';
-import type { OnCleanup, CreateMutable, Writable, OnMount } from '../../types';
+import type {
+  OnCleanup,
+  CreateMutable,
+  Writable,
+  OnMount,
+  Batch,
+} from '../../types';
 
 export const useTimeSetup = (
-  CurrentTime: CurrentTimeConstructor,
-  getCurrentLocale: GetCurrentLocale,
+  CurrentDate: CurrentDateConstructor,
   getAMPM: GetAMPM,
   createMutable: CreateMutable,
-  onMount: OnMount,
+  batch: Batch,
   onCleanup: OnCleanup
 ) =>
   ((args: Required<UseTimeHookArgs> = {} as any) => {
-    if (args.localesArgument == null) {
-      args.localesArgument = getCurrentLocale();
-    }
-
-    if (args.dateTimeFormatOptions == null) {
-      args.dateTimeFormatOptions = {};
-    }
-
-    if (args.autoClearInterval == null) {
-      args.autoClearInterval = true;
-    }
-
-    if (args.autoClearTimer == null) {
-      args.autoClearTimer = true;
-    }
-
-    if (args.autoClearListeners == null) {
-      args.autoClearListeners = true;
-    }
-
-    if (args.autoClearListersArgs == null) {
-      args.autoClearListersArgs = true;
-    }
-
-    if (args.autoClearStore == null) {
-      args.autoClearStore = true;
-    }
+    (args as unknown) = {};
+    args.autoClearInterval ||= true;
+    args.autoClearTimer ||= true;
+    args.autoClearListeners ||= true;
+    args.autoClearListersArgs ||= true;
+    args.autoClearStore ||= true;
 
     let startListeners = Array<UseTimeHookListenerCallback>();
     let stopListeners = Array<UseTimeHookListenerCallback>();
     let updateListeners = Array<UseTimeHookListenerCallback>();
 
-    let currentTime = new CurrentTime();
+    let currentDate = new CurrentDate();
+    let currDate = null as unknown as () => Date;
+    const currentDateSignal = createSignal(currentDate.date, {
+      equals: false,
+    });
     let timeStore = createMutable<UseTimeHookReturnValue>({
-      utcSeconds: currentTime.date.getUTCSeconds(),
-      utcMinutes: currentTime.date.getUTCMinutes(),
-      utcHours: currentTime.date.getUTCHours(),
-      localSeconds: currentTime.date.getSeconds(),
-      localMinutes: currentTime.date.getMinutes(),
-      localHours: currentTime.date.getHours(),
-      localeTimeString: currentTime.date.toLocaleTimeString(
-        args.localesArgument,
-        args.dateTimeFormatOptions
-      ),
-      ampm: getAMPM(currentTime.date),
-      isRunning: currentTime.isRunning,
-      start: currentTime.start,
-      stop: currentTime.stop,
+      get currentDate() {
+        return currDate();
+      },
+      ampm: getAMPM(currentDate.date),
+      isRunning: currentDate.isRunning,
+      start: currentDate.start,
+      stop: currentDate.stop,
       onStart: (callback) => {
         startListeners.push(callback);
       },
@@ -83,66 +59,34 @@ export const useTimeSetup = (
         updateListeners.push(callback);
       },
     });
+    currDate = () => currentDateSignal[0]();
 
     let startListenerArgs: Writable<UseTimeHookHookListenerArgs> = {
-      utcSeconds: timeStore.utcSeconds,
-      utcMinutes: timeStore.utcMinutes,
-      utcHours: timeStore.utcHours,
-      localSeconds: timeStore.localSeconds,
-      localMinutes: timeStore.localMinutes,
-      localHours: timeStore.localHours,
-      localeTimeString: timeStore.localeTimeString,
-      ampm: timeStore.ampm,
-      isRunning: timeStore.isRunning,
+      currentDate: null as unknown as Date,
+      ampm: 'AM',
+      isRunning: false,
     };
 
     let stopListenerArgs: Writable<UseTimeHookHookListenerArgs> = {
-      utcSeconds: timeStore.utcSeconds,
-      utcMinutes: timeStore.utcMinutes,
-      utcHours: timeStore.utcHours,
-      localSeconds: timeStore.localSeconds,
-      localMinutes: timeStore.localMinutes,
-      localHours: timeStore.localHours,
-      localeTimeString: timeStore.localeTimeString,
-      ampm: timeStore.ampm,
-      isRunning: timeStore.isRunning,
+      currentDate: null as unknown as Date,
+      ampm: 'AM',
+      isRunning: false,
     };
 
     let updateListenerArgs: Writable<UseTimeHookHookListenerArgs> = {
-      utcSeconds: timeStore.utcSeconds,
-      utcMinutes: timeStore.utcMinutes,
-      utcHours: timeStore.utcHours,
-
-      localSeconds: timeStore.localSeconds,
-      localMinutes: timeStore.localMinutes,
-      localHours: timeStore.localHours,
-
-      localeTimeString: timeStore.localeTimeString,
-      ampm: timeStore.ampm,
-      isRunning: timeStore.isRunning,
+      currentDate: null as unknown as Date,
+      ampm: 'AM',
+      isRunning: false,
     };
 
-    currentTime.onStart(() => {
-      timeStore.utcSeconds = currentTime.date.getUTCSeconds();
-      timeStore.utcMinutes = currentTime.date.getUTCMinutes();
-      timeStore.utcHours = currentTime.date.getUTCHours();
-      timeStore.localSeconds = currentTime.date.getSeconds();
-      timeStore.localMinutes = currentTime.date.getMinutes();
-      timeStore.localHours = currentTime.date.getHours();
-      timeStore.localeTimeString = currentTime.date.toLocaleTimeString(
-        args.localesArgument,
-        args.dateTimeFormatOptions
-      );
-      timeStore.ampm = getAMPM(currentTime.date);
-      timeStore.isRunning = currentTime.isRunning;
+    currentDate.onStart(() => {
+      batch(() => {
+        currentDateSignal[1](currentDate.date);
+        timeStore.ampm = getAMPM(currentDate.date);
+        timeStore.isRunning = currentDate.isRunning;
+      });
 
-      startListenerArgs.utcSeconds = timeStore.utcSeconds;
-      startListenerArgs.utcMinutes = timeStore.utcMinutes;
-      startListenerArgs.utcHours = timeStore.utcHours;
-      startListenerArgs.localSeconds = timeStore.localSeconds;
-      startListenerArgs.localMinutes = timeStore.localMinutes;
-      startListenerArgs.localHours = timeStore.localHours;
-      startListenerArgs.localeTimeString = timeStore.localeTimeString;
+      startListenerArgs.currentDate = timeStore.currentDate;
       startListenerArgs.ampm = timeStore.ampm;
       startListenerArgs.isRunning = timeStore.isRunning;
 
@@ -157,27 +101,14 @@ export const useTimeSetup = (
       }
     });
 
-    currentTime.onStop(() => {
-      timeStore.utcSeconds = currentTime.date.getUTCSeconds();
-      timeStore.utcMinutes = currentTime.date.getUTCMinutes();
-      timeStore.utcHours = currentTime.date.getUTCHours();
-      timeStore.localSeconds = currentTime.date.getSeconds();
-      timeStore.localMinutes = currentTime.date.getMinutes();
-      timeStore.localHours = currentTime.date.getHours();
-      timeStore.localeTimeString = currentTime.date.toLocaleTimeString(
-        args.localesArgument,
-        args.dateTimeFormatOptions
-      );
-      timeStore.ampm = getAMPM(currentTime.date);
-      timeStore.isRunning = currentTime.isRunning;
+    currentDate.onStop(() => {
+      batch(() => {
+        currentDateSignal[1](currentDate.date);
+        timeStore.ampm = getAMPM(currentDate.date);
+        timeStore.isRunning = currentDate.isRunning;
+      });
 
-      stopListenerArgs.utcSeconds = timeStore.utcSeconds;
-      stopListenerArgs.utcMinutes = timeStore.utcMinutes;
-      stopListenerArgs.utcHours = timeStore.utcHours;
-      stopListenerArgs.localSeconds = timeStore.localSeconds;
-      stopListenerArgs.localMinutes = timeStore.localMinutes;
-      stopListenerArgs.localHours = timeStore.localHours;
-      stopListenerArgs.localeTimeString = timeStore.localeTimeString;
+      stopListenerArgs.currentDate = timeStore.currentDate;
       stopListenerArgs.ampm = timeStore.ampm;
       stopListenerArgs.isRunning = timeStore.isRunning;
 
@@ -192,27 +123,15 @@ export const useTimeSetup = (
       }
     });
 
-    currentTime.onUpdate(() => {
-      timeStore.utcSeconds = currentTime.date.getUTCSeconds();
-      timeStore.utcMinutes = currentTime.date.getUTCMinutes();
-      timeStore.utcHours = currentTime.date.getUTCHours();
-      timeStore.localSeconds = currentTime.date.getSeconds();
-      timeStore.localMinutes = currentTime.date.getMinutes();
-      timeStore.localHours = currentTime.date.getHours();
-      timeStore.localeTimeString = currentTime.date.toLocaleTimeString(
-        args.localesArgument,
-        args.dateTimeFormatOptions
-      );
-      timeStore.ampm = getAMPM(currentTime.date);
+    currentDate.onUpdate(() => {
+      batch(() => {
+        currentDateSignal[1](currentDate.date);
+        timeStore.ampm = getAMPM(currentDate.date);
+      });
 
-      updateListenerArgs.utcSeconds = timeStore.utcSeconds;
-      updateListenerArgs.utcMinutes = timeStore.utcMinutes;
-      updateListenerArgs.utcHours = timeStore.utcHours;
-      updateListenerArgs.localSeconds = timeStore.localSeconds;
-      updateListenerArgs.localMinutes = timeStore.localMinutes;
-      updateListenerArgs.localHours = timeStore.localHours;
-      updateListenerArgs.localeTimeString = timeStore.localeTimeString;
+      updateListenerArgs.currentDate = timeStore.currentDate;
       updateListenerArgs.ampm = timeStore.ampm;
+      updateListenerArgs.isRunning = timeStore.isRunning;
 
       if (updateListeners.length === 1) {
         updateListeners[0](updateListenerArgs);
@@ -225,17 +144,13 @@ export const useTimeSetup = (
       }
     });
 
-    onMount(() => {
-      currentTime.start();
-    });
-
     onCleanup(() => {
       if (args.autoClearInterval) {
-        currentTime.clearInterval();
+        currentDate.clearInterval();
       }
 
       if (args.autoClearTimer) {
-        (currentTime as unknown) = null;
+        (CurrentDate as unknown) = null;
       }
 
       if (args.autoClearListeners) {
@@ -255,14 +170,15 @@ export const useTimeSetup = (
       }
     });
 
+    console.log({ timeStore, currentDate });
+
     return timeStore;
   }) as UseTimeHook;
 
 export const useTime = useTimeSetup(
-  CurrentTime,
-  getCurrentLocale,
+  CurrentDate,
   getAMPM,
   createMutable,
-  onMount,
+  batch,
   onCleanup
 );

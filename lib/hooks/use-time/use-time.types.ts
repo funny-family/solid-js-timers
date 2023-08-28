@@ -4,33 +4,17 @@ import type {
   AutoClearableListersArgs,
   AutoClearableStore,
   AutoClearableTimer,
-  AutoStartable,
   RequireAtLeastOne,
 } from '../../types';
 
-export type UseTimeHookArgs = {
-  localesArgument?: Parameters<Date['toLocaleTimeString']>[0];
-  dateTimeFormatOptions?: Parameters<Date['toLocaleTimeString']>[1];
-} & Partial<AutoStartable> &
-  Partial<AutoClearableInterval> &
+export type UseTimeHookArgs = Partial<AutoClearableInterval> &
   Partial<AutoClearableTimer> &
   Partial<AutoClearableListeners> &
   Partial<AutoClearableListersArgs> &
   Partial<AutoClearableStore>;
 
 export type UseTimeHookHookListenerArgs = Readonly<
-  Pick<
-    UseTimeHookReturnValue,
-    | 'utcSeconds'
-    | 'utcMinutes'
-    | 'utcHours'
-    | 'localSeconds'
-    | 'localMinutes'
-    | 'localHours'
-    | 'localeTimeString'
-    | 'ampm'
-    | 'isRunning'
-  >
+  Pick<UseTimeHookReturnValue, 'currentDate' | 'ampm' | 'isRunning'>
 >;
 
 export type UseTimeHookListenerCallback = (
@@ -42,13 +26,7 @@ export type UseTimeHookListener = (
 ) => void;
 
 export type UseTimeHookReturnValue = {
-  utcSeconds: number;
-  utcMinutes: number;
-  utcHours: number;
-  localSeconds: number;
-  localMinutes: number;
-  localHours: number;
-  localeTimeString: string;
+  currentDate: Date;
   ampm: string;
   isRunning: boolean;
   start: () => void;
