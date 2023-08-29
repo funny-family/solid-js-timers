@@ -1,20 +1,16 @@
 import type { WindowClearInterval, WindowSetInterval } from '../../types';
 
-type StopwatchListenerCallback = () => void;
-type StopwatchListener = (callback: StopwatchListenerCallback) => void;
-
 export interface StopwatchInterface {
   milliseconds: number;
   readonly isRunning: boolean;
-  updateFrequency: number;
-  readonly start: () => void;
-  readonly stop: () => void;
-  readonly reset: () => void;
-  readonly clearInterval: () => void;
-  readonly onStart: StopwatchListener;
-  readonly onStop: StopwatchListener;
-  readonly onReset: StopwatchListener;
-  readonly onUpdate: StopwatchListener;
+  readonly start: VoidFunction;
+  readonly stop: VoidFunction;
+  readonly reset: VoidFunction;
+  readonly on: (
+    type: keyof Pick<StopwatchInterface, 'start' | 'stop' | 'reset'> | 'update',
+    listener: VoidFunction
+  ) => void;
+  readonly clearInterval: VoidFunction;
 }
 
 export type StopwatchConstructor = {
@@ -24,7 +20,6 @@ export type StopwatchConstructor = {
 export class Stopwatch implements StopwatchInterface {
   milliseconds: StopwatchInterface['milliseconds'] = 0;
   isRunning: StopwatchInterface['isRunning'] = false;
-  updateFrequency: StopwatchInterface['updateFrequency'] = 1;
 
   start: StopwatchInterface['start'] = () => {
     if (this.#state === 'running') {
@@ -38,12 +33,12 @@ export class Stopwatch implements StopwatchInterface {
       this.#offset = Date.now();
       this.#intervalID = (setInterval as WindowSetInterval)(
         this.#update,
-        this.updateFrequency
+        90
       );
     }
 
-    if (this.#onStartCallback != null) {
-      this.#onStartCallback();
+    if (this.#onStartListener != null) {
+      this.#onStartListener();
     }
   };
 
@@ -56,8 +51,8 @@ export class Stopwatch implements StopwatchInterface {
     this.#state = 'stopped';
     this.isRunning = false;
 
-    if (this.#onStopCallback != null) {
-      this.#onStopCallback();
+    if (this.#onStopListener != null) {
+      this.#onStopListener();
     }
   };
 
@@ -71,8 +66,34 @@ export class Stopwatch implements StopwatchInterface {
     this.isRunning = false;
     this.milliseconds = 0;
 
-    if (this.#onResetCallback != null) {
-      this.#onResetCallback();
+    if (this.#onResetListener != null) {
+      this.#onResetListener();
+    }
+  };
+
+  on: StopwatchInterface['on'] = (type, listener) => {
+    if (type === 'start') {
+      this.#onStartListener = listener;
+
+      return;
+    }
+
+    if (type === 'stop') {
+      this.#onStopListener = listener;
+
+      return;
+    }
+
+    if (type === 'reset') {
+      this.#onResetListener = listener;
+
+      return;
+    }
+
+    if (type === 'update') {
+      this.#onUpdateListener = listener;
+
+      return;
     }
   };
 
@@ -83,29 +104,13 @@ export class Stopwatch implements StopwatchInterface {
     }
   };
 
-  onStart: StopwatchInterface['onStart'] = (callback) => {
-    this.#onStartCallback = callback;
-  };
-
-  onStop: StopwatchInterface['onStop'] = (callback) => {
-    this.#onStopCallback = callback;
-  };
-
-  onReset: StopwatchInterface['onReset'] = (callback) => {
-    this.#onResetCallback = callback;
-  };
-
-  onUpdate: StopwatchInterface['onUpdate'] = (callback) => {
-    this.#onUpdateCallback = callback;
-  };
-
   #offset: number = 0;
   #intervalID: number | null = null;
   #state: 'idel' | 'running' | 'stopped' = 'idel';
-  #onStartCallback: StopwatchListenerCallback | null = null;
-  #onStopCallback: StopwatchListenerCallback | null = null;
-  #onResetCallback: StopwatchListenerCallback | null = null;
-  #onUpdateCallback: StopwatchListenerCallback | null = null;
+  #onStartListener: VoidFunction | null = null;
+  #onStopListener: VoidFunction | null = null;
+  #onResetListener: VoidFunction | null = null;
+  #onUpdateListener: VoidFunction | null = null;
 
   get #delta(): number {
     const now = Date.now();
@@ -115,11 +120,11 @@ export class Stopwatch implements StopwatchInterface {
     return newDelta;
   }
 
-  #update: () => void = () => {
+  #update: VoidFunction = () => {
     this.milliseconds += this.#delta;
 
-    if (this.#onUpdateCallback != null) {
-      this.#onUpdateCallback();
+    if (this.#onUpdateListener != null) {
+      this.#onUpdateListener();
     }
   };
 }

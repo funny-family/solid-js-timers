@@ -38,7 +38,6 @@ export const useStopwatchSetup = (
     let updateListeners = Array<UseStopwatchHookListenerCallback>();
 
     let stopwatch = new Stopwatch();
-    stopwatch.updateFrequency = 90;
     let stopwatchStore = createMutable<UseStopwatchHookReturnValue>({
       milliseconds: 0,
       seconds: 0,
@@ -65,17 +64,22 @@ export const useStopwatchSetup = (
       start: stopwatch.start,
       stop: stopwatch.stop,
       reset: stopwatch.reset,
-      onStart: (callback) => {
-        startListeners.push(callback);
-      },
-      onStop: (callback) => {
-        stopListeners.push(callback);
-      },
-      onReset: (callback) => {
-        resetListeners.push(callback);
-      },
-      onUpdate: (callback) => {
-        updateListeners.push(callback);
+      on(type, listener) {
+        if (type === 'start') {
+          startListeners.push(listener);
+        }
+
+        if (type === 'stop') {
+          stopListeners.push(listener);
+        }
+
+        if (type === 'reset') {
+          resetListeners.push(listener);
+        }
+
+        if (type === 'update') {
+          updateListeners.push(listener);
+        }
       },
     });
 
@@ -107,7 +111,7 @@ export const useStopwatchSetup = (
       isRunning: false,
     };
 
-    stopwatch.onStart(() => {
+    stopwatch.on('start', () => {
       stopwatchStore.isRunning = stopwatch.isRunning;
 
       startListenerArgs.milliseconds = stopwatchStore.milliseconds;
@@ -126,7 +130,7 @@ export const useStopwatchSetup = (
       }
     });
 
-    stopwatch.onStop(() => {
+    stopwatch.on('stop', () => {
       stopwatchStore.isRunning = stopwatch.isRunning;
 
       stopListenerArgs.milliseconds = stopwatchStore.milliseconds;
@@ -145,7 +149,7 @@ export const useStopwatchSetup = (
       }
     });
 
-    stopwatch.onReset(() => {
+    stopwatch.on('reset', () => {
       batch(() => {
         stopwatchStore.milliseconds = 0;
         stopwatchStore.seconds = 0;
@@ -169,7 +173,7 @@ export const useStopwatchSetup = (
       }
     });
 
-    stopwatch.onUpdate(() => {
+    stopwatch.on('update', () => {
       // support only till 60 min (1 hour)
       if (stopwatch.milliseconds >= 3600000) {
         stopwatch.reset();

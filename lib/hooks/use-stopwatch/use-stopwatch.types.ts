@@ -40,10 +40,10 @@ export type UseStopwatchHookReturnValue = {
       currentMilliseconds: UseStopwatchHookReturnValue['milliseconds'];
     }) => UseStopwatchHookReturnValue['milliseconds']
   ) => void;
-  onStart: UseStopwatchHookListener;
-  onStop: UseStopwatchHookListener;
-  onReset: UseStopwatchHookListener;
-  onUpdate: UseStopwatchHookListener;
+  on: (
+    type: Parameters<StopwatchInterface['on']>[0],
+    listener: UseStopwatchHookListenerCallback
+  ) => void;
 } & Pick<StopwatchInterface, 'start' | 'stop' | 'reset'>;
 
 export type UseStopwatchHook = (
