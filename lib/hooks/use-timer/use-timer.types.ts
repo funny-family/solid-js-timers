@@ -30,18 +30,18 @@ export type UseTimerHookListener = (
 ) => void;
 
 export type UseTimerHookReturnValue = {
-  milliseconds: number;
+  milliseconds: CountdownInterface['milliseconds'];
   seconds: number;
   minutes: number;
   hours: number;
   days: number;
-  isRunning: boolean;
+  isRunning: CountdownInterface['isRunning'];
   setMilliseconds: (
     predicate: () => UseTimerHookReturnValue['milliseconds']
   ) => void;
-  start: () => void;
-  stop: () => void;
-  reset: () => void;
+  start: CountdownInterface['start'];
+  stop: CountdownInterface['stop'];
+  reset: CountdownInterface['reset'];
   on: (
     type: Parameters<CountdownInterface['on']>[0],
     listener: UseTimerHookListenerCallback

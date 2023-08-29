@@ -5,6 +5,7 @@ import type {
   AutoClearableListersArgs,
   AutoClearableStore,
   AutoClearableTimer,
+  FilterNotStartingWith,
   RequireAtLeastOne,
 } from '../../types';
 
@@ -26,15 +27,19 @@ export type UseTimeHookListener = (
   callback: UseTimeHookListenerCallback
 ) => void;
 
+type ImmutableDate = Pick<Date, FilterNotStartingWith<keyof Date, 'set'>>;
+
 export type UseTimeHookReturnValue = {
-  currentDate: CurrentDateInterface['date'];
+  currentDate: ImmutableDate;
   ampm: string;
   isRunning: CurrentDateInterface['isRunning'];
+  start: CurrentDateInterface['start'];
+  stop: CurrentDateInterface['stop'];
   on: (
     type: Parameters<CurrentDateInterface['on']>[0],
     listener: UseTimeHookListenerCallback
   ) => void;
-} & Pick<CurrentDateInterface, 'start' | 'stop'>;
+};
 
 export type UseTimeHook = (
   args?: RequireAtLeastOne<UseTimeHookArgs>

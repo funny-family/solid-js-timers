@@ -1,6 +1,5 @@
 import { type StopwatchInterface } from './stopwatch';
 import type {
-  AutoStartable,
   AutoClearableListeners,
   AutoClearableInterval,
   RequireAtLeastOne,
@@ -31,20 +30,23 @@ export type UseStopwatchHookListener = (
 ) => void;
 
 export type UseStopwatchHookReturnValue = {
-  milliseconds: number;
+  milliseconds: StopwatchInterface['milliseconds'];
   seconds: number;
   minutes: number;
-  isRunning: boolean;
+  isRunning: StopwatchInterface['isRunning'];
   setMilliseconds: (
     predicate: (args: {
       currentMilliseconds: UseStopwatchHookReturnValue['milliseconds'];
     }) => UseStopwatchHookReturnValue['milliseconds']
   ) => void;
+  start: StopwatchInterface['start'];
+  stop: StopwatchInterface['stop'];
+  reset: StopwatchInterface['reset'];
   on: (
     type: Parameters<StopwatchInterface['on']>[0],
     listener: UseStopwatchHookListenerCallback
   ) => void;
-} & Pick<StopwatchInterface, 'start' | 'stop' | 'reset'>;
+};
 
 export type UseStopwatchHook = (
   args?: RequireAtLeastOne<UseStopwatchHookArgs>
