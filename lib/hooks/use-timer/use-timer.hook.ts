@@ -58,20 +58,26 @@ export const useTimerSetup = (
       start: countdown.start,
       stop: countdown.stop,
       reset: countdown.reset,
-      onStart: (callback) => {
-        startListeners.push(callback);
-      },
-      onEnd: (callback) => {
-        endListeners.push(callback);
-      },
-      onStop: (callback) => {
-        stopListeners.push(callback);
-      },
-      onReset: (callback) => {
-        resetListeners.push(callback);
-      },
-      onUpdate: (callback) => {
-        updateListeners.push(callback);
+      on(type, listener) {
+        if (type === 'start') {
+          startListeners.push(listener);
+        }
+
+        if (type === 'end') {
+          endListeners.push(listener);
+        }
+
+        if (type === 'stop') {
+          stopListeners.push(listener);
+        }
+
+        if (type === 'reset') {
+          resetListeners.push(listener);
+        }
+
+        if (type === 'update') {
+          updateListeners.push(listener);
+        }
       },
     });
 
@@ -120,7 +126,7 @@ export const useTimerSetup = (
       isRunning: false,
     };
 
-    countdown.onStart(() => {
+    countdown.on('start', () => {
       timerStore.isRunning = countdown.isRunning;
 
       startListenerArgs.milliseconds = timerStore.milliseconds;
@@ -141,7 +147,7 @@ export const useTimerSetup = (
       }
     });
 
-    countdown.onEnd(() => {
+    countdown.on('end', () => {
       batch(() => {
         timerStore.milliseconds = 0;
         timerStore.minutes = 0;
@@ -168,7 +174,7 @@ export const useTimerSetup = (
       }
     });
 
-    countdown.onStop(() => {
+    countdown.on('stop', () => {
       timerStore.isRunning = countdown.isRunning;
 
       stopListenerArgs.milliseconds = timerStore.milliseconds;
@@ -189,7 +195,7 @@ export const useTimerSetup = (
       }
     });
 
-    countdown.onReset(() => {
+    countdown.on('reset', () => {
       batch(() => {
         timerStore.milliseconds = 0;
         timerStore.seconds = 0;
@@ -217,7 +223,7 @@ export const useTimerSetup = (
       }
     });
 
-    countdown.onUpdate(() => {
+    countdown.on('update', () => {
       batch(() => {
         timerStore.milliseconds = countdown.milliseconds;
         timerStore.seconds = calculateSeconds(countdown.milliseconds);

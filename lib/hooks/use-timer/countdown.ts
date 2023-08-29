@@ -11,15 +11,17 @@ export interface CountdownInterface {
   readonly setMilliseconds: (
     milliseconds: CountdownInterface['milliseconds']
   ) => void;
-  readonly clearInterval: () => void;
   readonly start: () => void;
   readonly stop: () => void;
   readonly reset: () => void;
-  readonly onStart: CountdownLister;
-  readonly onEnd: CountdownLister;
-  readonly onStop: CountdownLister;
-  readonly onReset: CountdownLister;
-  readonly onUpdate: CountdownLister;
+  readonly on: (
+    type:
+      | keyof Pick<CountdownInterface, 'start' | 'stop' | 'reset'>
+      | 'end'
+      | 'update',
+    listener: VoidFunction
+  ) => void;
+  readonly clearInterval: () => void;
 }
 
 export type CountdownConstructor = {
@@ -47,11 +49,11 @@ export class Countdown implements CountdownInterface {
     this.#offsetTime = this.milliseconds + Date.now();
 
     if (this.intervalID == null) {
-      this.intervalID = (setInterval as WindowSetInterval)(this.#update, 100);
+      this.intervalID = (setInterval as WindowSetInterval)(this.#update, 90);
     }
 
-    if (this.#onStartCallback != null) {
-      this.#onStartCallback();
+    if (this.#onStartListener != null) {
+      this.#onStartListener();
     }
   };
 
@@ -64,8 +66,8 @@ export class Countdown implements CountdownInterface {
     this.state = 'stopped';
     this.isRunning = false;
 
-    if (this.#onStopCallback != null) {
-      this.#onStopCallback();
+    if (this.#onStopListener != null) {
+      this.#onStopListener();
     }
   };
 
@@ -79,8 +81,40 @@ export class Countdown implements CountdownInterface {
     this.state = 'idel';
     this.isRunning = false;
 
-    if (this.#onResetCallback != null) {
-      this.#onResetCallback();
+    if (this.#onResetListener != null) {
+      this.#onResetListener();
+    }
+  };
+
+  on: CountdownInterface['on'] = (type, listener) => {
+    if (type === 'start') {
+      this.#onStartListener = listener;
+
+      return;
+    }
+
+    if (type === 'end') {
+      this.#onEndListener = listener;
+
+      return;
+    }
+
+    if (type === 'stop') {
+      this.#onStopListener = listener;
+
+      return;
+    }
+
+    if (type === 'reset') {
+      this.#onResetListener = listener;
+
+      return;
+    }
+
+    if (type === 'update') {
+      this.#onUpdateListener = listener;
+
+      return;
     }
   };
 
@@ -91,32 +125,12 @@ export class Countdown implements CountdownInterface {
     }
   };
 
-  onStart: CountdownInterface['onStart'] = (callback) => {
-    this.#onStartCallback = callback;
-  };
-
-  onEnd: CountdownInterface['onEnd'] = (callback) => {
-    this.#onEndCallback = callback;
-  };
-
-  onStop: CountdownInterface['onStop'] = (callback) => {
-    this.#onStopCallback = callback;
-  };
-
-  onReset: CountdownInterface['onReset'] = (callback) => {
-    this.#onResetCallback = callback;
-  };
-
-  onUpdate: CountdownInterface['onUpdate'] = (callback) => {
-    this.#onUpdateCallback = callback;
-  };
-
   #offsetTime: number = 0;
-  #onStartCallback: CountdownListerCallback | null = null;
-  #onEndCallback: CountdownListerCallback | null = null;
-  #onStopCallback: CountdownListerCallback | null = null;
-  #onResetCallback: CountdownListerCallback | null = null;
-  #onUpdateCallback: CountdownListerCallback | null = null;
+  #onStartListener: CountdownListerCallback | null = null;
+  #onEndListener: CountdownListerCallback | null = null;
+  #onStopListener: CountdownListerCallback | null = null;
+  #onResetListener: CountdownListerCallback | null = null;
+  #onUpdateListener: CountdownListerCallback | null = null;
 
   #update = () => {
     this.milliseconds = this.#offsetTime - Date.now();
@@ -127,15 +141,15 @@ export class Countdown implements CountdownInterface {
       this.state = 'idel';
       this.isRunning = false;
 
-      if (this.#onEndCallback != null) {
-        this.#onEndCallback();
+      if (this.#onEndListener != null) {
+        this.#onEndListener();
       }
 
       return;
     }
 
-    if (this.#onUpdateCallback != null) {
-      this.#onUpdateCallback();
+    if (this.#onUpdateListener != null) {
+      this.#onUpdateListener();
     }
   };
 }

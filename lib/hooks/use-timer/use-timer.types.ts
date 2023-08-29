@@ -1,10 +1,10 @@
+import { type CountdownInterface } from './countdown';
 import type {
   AutoClearableInterval,
   AutoClearableListeners,
   AutoClearableListersArgs,
   AutoClearableStore,
   AutoClearableTimer,
-  AutoStartable,
   RequireAtLeastOne,
 } from './../../types';
 
@@ -42,11 +42,10 @@ export type UseTimerHookReturnValue = {
   start: () => void;
   stop: () => void;
   reset: () => void;
-  onStart: UseTimerHookListener;
-  onEnd: UseTimerHookListener;
-  onStop: UseTimerHookListener;
-  onReset: UseTimerHookListener;
-  onUpdate: UseTimerHookListener;
+  on: (
+    type: Parameters<CountdownInterface['on']>[0],
+    listener: UseTimerHookListenerCallback
+  ) => void;
 };
 
 export type UseTimerHook = (
