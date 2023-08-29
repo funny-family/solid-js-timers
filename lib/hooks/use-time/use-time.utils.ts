@@ -21,18 +21,3 @@ export const getAMPM = (
   }).format
 );
 export type GetAMPM = typeof getAMPM;
-
-/**
- * @description
- * Get preferred language of the user.
- *
- * @example
- * getCurrentLocale() // 'en'
- */
-export const getCurrentLocale = (
-  (navigator: Navigator) => () =>
-    navigator.languages && navigator.languages.length
-      ? navigator.languages[0]
-      : navigator.language
-)(globalThis.navigator);
-export type GetCurrentLocale = typeof getCurrentLocale;

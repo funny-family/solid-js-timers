@@ -1,3 +1,4 @@
+import { type CurrentDateInterface } from './current-date';
 import type {
   AutoClearableInterval,
   AutoClearableListeners,
@@ -26,15 +27,14 @@ export type UseTimeHookListener = (
 ) => void;
 
 export type UseTimeHookReturnValue = {
-  currentDate: Date;
+  currentDate: CurrentDateInterface['date'];
   ampm: string;
-  isRunning: boolean;
-  start: () => void;
-  stop: () => void;
-  onUpdate: UseTimeHookListener;
-  onStart: UseTimeHookListener;
-  onStop: UseTimeHookListener;
-};
+  isRunning: CurrentDateInterface['isRunning'];
+  on: (
+    type: Parameters<CurrentDateInterface['on']>[0],
+    listener: UseTimeHookListenerCallback
+  ) => void;
+} & Pick<CurrentDateInterface, 'start' | 'stop'>;
 
 export type UseTimeHook = (
   args?: RequireAtLeastOne<UseTimeHookArgs>

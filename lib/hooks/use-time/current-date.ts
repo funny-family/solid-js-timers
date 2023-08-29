@@ -1,17 +1,15 @@
 import type { WindowClearInterval, WindowSetInterval } from '../../types';
 
-type CurrentDateListenerCallback = () => void;
-type CurrentDateListener = (callback: CurrentDateListenerCallback) => void;
-
 export interface CurrentDateInterface {
   readonly isRunning: boolean;
   readonly date: Date;
-  readonly start: () => void;
-  readonly stop: () => void;
-  readonly clearInterval: () => void;
-  readonly onStart: CurrentDateListener;
-  readonly onStop: CurrentDateListener;
-  readonly onUpdate: CurrentDateListener;
+  readonly start: VoidFunction;
+  readonly stop: VoidFunction;
+  readonly on: (
+    type: keyof Pick<CurrentDateInterface, 'start' | 'stop'> | 'update',
+    listener: VoidFunction
+  ) => void;
+  readonly clearInterval: VoidFunction;
 }
 
 export type CurrentDateConstructor = {
@@ -35,8 +33,8 @@ export class CurrentDate implements CurrentDateInterface {
       this.#intervalID = (setInterval as WindowSetInterval)(this.#update, 300);
     }
 
-    if (this.#onStartCallback != null) {
-      this.#onStartCallback();
+    if (this.#onStartListener != null) {
+      this.#onStartListener();
     }
   };
 
@@ -49,8 +47,28 @@ export class CurrentDate implements CurrentDateInterface {
     this.isRunning = false;
     this.#state = 'stopped';
 
-    if (this.#onStopCallback != null) {
-      this.#onStopCallback();
+    if (this.#onStopListener != null) {
+      this.#onStopListener();
+    }
+  };
+
+  on: CurrentDateInterface['on'] = (type, listener) => {
+    if (type === 'start') {
+      this.#onStartListener = listener;
+
+      return;
+    }
+
+    if (type === 'stop') {
+      this.#onStopListener = listener;
+
+      return;
+    }
+
+    if (type === 'update') {
+      this.#onUpdateListener = listener;
+
+      return;
     }
   };
 
@@ -61,29 +79,17 @@ export class CurrentDate implements CurrentDateInterface {
     }
   };
 
-  onStart: CurrentDateInterface['onStart'] = (callback) => {
-    this.#onStartCallback = callback;
-  };
-
-  onStop: CurrentDateInterface['onStop'] = (callback) => {
-    this.#onStopCallback = callback;
-  };
-
-  onUpdate: CurrentDateInterface['onUpdate'] = (callback) => {
-    this.#onUpdateCallback = callback;
-  };
-
   #state: 'idel' | 'running' | 'stopped' = 'idel';
   #intervalID: null | number = null;
-  #onStartCallback: CurrentDateListenerCallback | null = null;
-  #onStopCallback: CurrentDateListenerCallback | null = null;
-  #onUpdateCallback: CurrentDateListenerCallback | null = null;
+  #onStartListener: VoidFunction | null = null;
+  #onStopListener: VoidFunction | null = null;
+  #onUpdateListener: VoidFunction | null = null;
 
-  #update: () => void = () => {
+  #update: VoidFunction = () => {
     this.date.setTime(Date.now());
 
-    if (this.#onUpdateCallback != null) {
-      this.#onUpdateCallback();
+    if (this.#onUpdateListener != null) {
+      this.#onUpdateListener();
     }
   };
 }

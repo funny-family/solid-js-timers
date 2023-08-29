@@ -9,13 +9,7 @@ import type {
   UseTimeHookListenerCallback,
   UseTimeHookReturnValue,
 } from './use-time.types';
-import type {
-  OnCleanup,
-  CreateMutable,
-  Writable,
-  OnMount,
-  Batch,
-} from '../../types';
+import type { OnCleanup, CreateMutable, Writable, Batch } from '../../types';
 
 export const useTimeSetup = (
   CurrentDate: CurrentDateConstructor,
@@ -24,7 +18,7 @@ export const useTimeSetup = (
   batch: Batch,
   onCleanup: OnCleanup
 ) =>
-  ((args: Required<UseTimeHookArgs> = {} as any) => {
+  ((args: Required<UseTimeHookArgs>) => {
     (args as unknown) = {};
     args.autoClearInterval ||= true;
     args.autoClearTimer ||= true;
@@ -37,29 +31,33 @@ export const useTimeSetup = (
     let updateListeners = Array<UseTimeHookListenerCallback>();
 
     let currentDate = new CurrentDate();
-    let currDate = null as unknown as () => Date;
     const currentDateSignal = createSignal(currentDate.date, {
       equals: false,
     });
+    let currentDateAccessor = null as unknown as (typeof currentDateSignal)[0];
     let timeStore = createMutable<UseTimeHookReturnValue>({
       get currentDate() {
-        return currDate();
+        return currentDateAccessor();
       },
       ampm: getAMPM(currentDate.date),
       isRunning: currentDate.isRunning,
       start: currentDate.start,
       stop: currentDate.stop,
-      onStart: (callback) => {
-        startListeners.push(callback);
-      },
-      onStop: (callback) => {
-        stopListeners.push(callback);
-      },
-      onUpdate: (callback) => {
-        updateListeners.push(callback);
+      on(type, listener) {
+        if (type === 'start') {
+          startListeners.push(listener);
+        }
+
+        if (type === 'stop') {
+          stopListeners.push(listener);
+        }
+
+        if (type === 'update') {
+          updateListeners.push(listener);
+        }
       },
     });
-    currDate = () => currentDateSignal[0]();
+    currentDateAccessor = () => currentDateSignal[0]();
 
     let startListenerArgs: Writable<UseTimeHookHookListenerArgs> = {
       currentDate: null as unknown as Date,
@@ -79,7 +77,7 @@ export const useTimeSetup = (
       isRunning: false,
     };
 
-    currentDate.onStart(() => {
+    currentDate.on('start', () => {
       batch(() => {
         currentDateSignal[1](currentDate.date);
         timeStore.ampm = getAMPM(currentDate.date);
@@ -101,7 +99,7 @@ export const useTimeSetup = (
       }
     });
 
-    currentDate.onStop(() => {
+    currentDate.on('stop', () => {
       batch(() => {
         currentDateSignal[1](currentDate.date);
         timeStore.ampm = getAMPM(currentDate.date);
@@ -123,7 +121,7 @@ export const useTimeSetup = (
       }
     });
 
-    currentDate.onUpdate(() => {
+    currentDate.on('update', () => {
       batch(() => {
         currentDateSignal[1](currentDate.date);
         timeStore.ampm = getAMPM(currentDate.date);
@@ -169,8 +167,6 @@ export const useTimeSetup = (
         (timeStore as unknown) = null;
       }
     });
-
-    console.log({ timeStore, currentDate });
 
     return timeStore;
   }) as UseTimeHook;
