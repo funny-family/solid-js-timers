@@ -17,11 +17,6 @@ export type RequireAtLeastOne<T> = {
 
 export type Writable<T> = { -readonly [P in keyof T]: T[P] };
 
-export type FilterNotStartingWith<
-  Set,
-  Needle extends string
-> = Set extends `${Needle}${infer _X}` ? never : Set;
-
 /**
  * @description
  * Clear hook interval on cleanup.

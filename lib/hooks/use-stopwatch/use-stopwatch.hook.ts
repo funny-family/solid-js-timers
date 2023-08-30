@@ -234,6 +234,50 @@ export const useStopwatchSetup = (
     return stopwatchStore;
   }) as UseStopwatchHook;
 
+/**
+ * @description
+ * Custom hook to create stopwatch timer.
+ *
+ * @param {Object} args timer configuration. {@link UseStopwatchHookArgs}
+ *
+ * @returns {Object} manage timer state. {@link UseStopwatchHookReturnValue}
+ *
+ *  * @example
+ * ```tsx
+ * const App = () => {
+ *   const stopwatch = useStopwatch();
+ *   stopwatch.setMilliseconds(() => 30000);
+ *
+ *   return (
+ *     <div>
+ *       <div>
+ *         <div>
+ *           <button type="button" onClick={() => stopwatch.start()}>
+ *             start
+ *           </button>
+ *           <button type="button" onClick={() => stopwatch.stop()}>
+ *             stop
+ *           </button>
+ *           <button type="button" onClick={() => stopwatch.reset()}>
+ *             reset
+ *           </button>
+ *         </div>
+ *         <div>isRunning: {`${stopwatch.isRunning}`}</div>
+ *         <div>stopwatch milliseconds: {stopwatch.milliseconds}</div>
+ *         <div>
+ *           <span>stopwatch time: </span>
+ *           <span>
+ *             {`${stopwatch.minutes}`.padStart(2, '0')}:
+ *             {`${stopwatch.seconds}`.padStart(2, '0')}:
+ *             {`${stopwatch.milliseconds}`.padStart(2, '0').slice(-2)}
+ *           </span>
+ *         </div>
+ *       </div>
+ *     </div>
+ *   );
+ * };
+ * ```
+ */
 export const useStopwatch = useStopwatchSetup(
   Stopwatch,
   calculateSeconds,

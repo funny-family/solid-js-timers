@@ -171,6 +171,52 @@ export const useTimeSetup = (
     return timeStore;
   }) as UseTimeHook;
 
+/**
+ * @description
+ * Custom hook to create time clock.
+ *
+ * @param {Object} args time configuration. {@link UseTimeHookArgs}
+ *
+ * @returns {Object} manage time state. {@link UseTimeHookReturnValue}
+ *
+ *  * @example
+ * ```tsx
+ * const App = () => {
+ *   const timer = useTime();
+ *   timer.start();
+ *
+ *   const koKR_DateTimeFormat = Intl.DateTimeFormat('ko-KR', {
+ *     second: 'numeric',
+ *     minute: 'numeric',
+ *     hour: 'numeric',
+ *   });
+ *
+ *   return (
+ *     <div>
+ *       <div>
+ *         <div>
+ *           <button type="button" onClick={() => time.start()}>
+ *             start
+ *           </button>
+ *           <button type="button" onClick={() => time.stop()}>
+ *             stop
+ *           </button>
+ *         </div>
+ *         <div>time isRunning: {`${time.isRunning}`}</div>
+ *         <div>time milliseconds: {time.currentDate.getTime()}</div>
+ *         <div>
+ *           <span>
+ *             time:&nbsp;
+ *             {koKR_DateTimeFormat.format(time.currentDate)}&nbsp;
+ *             {time.ampm}
+ *           </span>
+ *         </div>
+ *       </div>
+ *     </div>
+ *   );
+ * };
+ * ```
+ */
 export const useTime = useTimeSetup(
   CurrentDate,
   getAMPM,

@@ -282,6 +282,52 @@ export const useTimerSetup = (
     return timerStore;
   }) as UseTimerHook;
 
+/**
+ * @description
+ * Custom hook to create countdown timer.
+ *
+ * @param {Object} args timer configuration. {@link UseTimerHookArgs}
+ *
+ * @returns {Object} manage timer state. {@link UseTimerHookReturnValue}
+ *
+ *  * @example
+ * ```tsx
+ * const App = () => {
+ *   const timer = useTimer();
+ *   timer.setMilliseconds(() => 50000);
+ *
+ *   return (
+ *     <div>
+ *       <div>
+ *         <div>
+ *           <button type="button" onClick={() => timer.start()}>
+ *             start
+ *           </button>
+ *           <button type="button" onClick={() => timer.stop()}>
+ *             stop
+ *           </button>
+ *           <button type="button" onClick={() => timer.reset()}>
+ *             reset
+ *           </button>
+ *         </div>
+ *         <div>timer isRunning: {`${timer.isRunning}`}</div>
+ *         <div>timer milliseconds: {timer.milliseconds}</div>
+ *         <div>
+ *           <span>timer time: </span>
+ *           <span>
+ *             {timer.days}:
+ *             {`${timer.hours}`.padStart(2, '0')}:
+ *             {`${timer.minutes}`.padStart(2, '0')}:
+ *             {`${timer.seconds}`.padStart(2, '0')}:
+ *             {`${timer.milliseconds}`.padStart(2, '0').slice(-2)}
+ *           </span>
+ *         </div>
+ *       </div>
+ *     </div>
+ *   );
+ * };
+ * ```
+ */
 export const useTimer = useTimerSetup(
   Countdown,
   createMutable,
