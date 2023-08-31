@@ -32,7 +32,7 @@ export type UseTimerHookListener = (
 export type UseTimerHookReturnValue = {
   /**
    * @description
-   * Current number of milliseconds.
+   * Current number of milliseconds left.
    *
    * @example
    * ```js
@@ -42,7 +42,7 @@ export type UseTimerHookReturnValue = {
   milliseconds: CountdownInterface['milliseconds'];
   /**
    * @description
-   * Current number of seconds.
+   * Current number of seconds left.
    *
    * @example
    * ```js
@@ -52,7 +52,7 @@ export type UseTimerHookReturnValue = {
   seconds: number;
   /**
    * @description
-   * Current number of minutes.
+   * Current number of minutes left.
    *
    * @example
    * ```js
@@ -62,7 +62,7 @@ export type UseTimerHookReturnValue = {
   minutes: number;
   /**
    * @description
-   * Current number of hours.
+   * Current number of hours left.
    *
    * @example
    * ```js
@@ -72,7 +72,7 @@ export type UseTimerHookReturnValue = {
   hours: number;
   /**
    * @description
-   * Current number of days.
+   * Current number of days left.
    *
    * @example
    * ```js

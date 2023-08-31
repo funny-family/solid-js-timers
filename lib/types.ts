@@ -19,7 +19,7 @@ export type Writable<T> = { -readonly [P in keyof T]: T[P] };
 
 /**
  * @description
- * Clear hook interval on cleanup.
+ * Clear timer's interval on cleanup method.
  */
 export type AutoClearableInterval = {
   autoClearInterval: boolean;
@@ -27,7 +27,7 @@ export type AutoClearableInterval = {
 
 /**
  * @description
- * Clear timer on cleanup.
+ * Clear timer on cleanup method.
  */
 export type AutoClearableTimer = {
   autoClearTimer: boolean;
@@ -35,7 +35,7 @@ export type AutoClearableTimer = {
 
 /**
  * @description
- * Clear listeners on cleanup.
+ * Clear timer's listeners on cleanup method.
  */
 export type AutoClearableListeners = {
   autoClearListeners: boolean;
@@ -43,7 +43,7 @@ export type AutoClearableListeners = {
 
 /**
  * @description
- * Clear arguments of listeners on cleanup.
+ * Clear arguments of timer's listeners on cleanup method.
  */
 export type AutoClearableListersArgs = {
   autoClearListersArgs: boolean;
@@ -51,7 +51,7 @@ export type AutoClearableListersArgs = {
 
 /**
  * @description
- * Clear store inside hook on cleanup.
+ * Clear timer store on cleanup method.
  */
 export type AutoClearableStore = {
   autoClearStore: boolean;
