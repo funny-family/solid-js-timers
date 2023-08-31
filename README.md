@@ -122,7 +122,6 @@ const App = () => {
 | ----- | ----------- |
 | currentDate | Current date object. |
 | ampm | 'AM' or 'PM' depends on time. |
-| minutes | Current amount of minutes. |
 | isRunning | Indicates whether the timer is running or not. |
 | start | Start timer. |
 | stop | Stop timer. |
