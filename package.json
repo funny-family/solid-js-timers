@@ -2,7 +2,7 @@
   "name": "solid-js-timers",
   "private": false,
   "version": "1.0.0",
-  "description": "Timer hooks for Solid-js",
+  "description": "Solid-js timer hooks.",
   "author": "funny-family <https://github.com/funny-family>",
   "repository": {
     "type": "git",
