@@ -42,6 +42,7 @@
     "dev": "concurrently \"rm -rf ./dist\" \"pnpm build:watch\"",
     "build": "vite build",
     "build:watch": "vite build --watch",
+    "link-package": "./scripts/link-package.sh",
     "release": "release-it"
   },
   "devDependencies": {
