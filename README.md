@@ -72,7 +72,6 @@ const App = () => {
 | reset | Reset timer. |
 | on | Listener method that fires on the specified timer event. |
 
----
 **NOTE**
 
 `useStopwatch` resets after reaching 3600000 milliseconds (60 minutes or 1 hour).
