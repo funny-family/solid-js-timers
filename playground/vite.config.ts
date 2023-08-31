@@ -1,14 +1,17 @@
 import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 import solidDevtools from 'solid-devtools/vite';
+import path from 'node:path';
 
 export default defineConfig({
   server: {
     port: 6783,
     strictPort: true,
   },
+  base: './',
   build: {
     target: 'esnext',
+    outDir: path.resolve(__dirname, '../docs'),
   },
   plugins: [
     solidDevtools({

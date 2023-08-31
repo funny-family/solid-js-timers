@@ -1,9 +1,14 @@
-// import { useStopwatch } from 'solid-js-timers';
-import { useStopwatch } from '../../../lib';
+import { useStopwatch } from '../lib';
 
 export const UseStopwatchRoute = () => {
-  // const stopwatch = useStopwatch();
-  const stopwatch = useStopwatch({ initialMilliseconds: 45654 });
+  const stopwatch = useStopwatch();
+  // @ts-ignore
+  window.stopwatch = stopwatch;
+  stopwatch.setMilliseconds(({ currentMilliseconds }) => {
+    console.log('"stopwatch" currentMilliseconds:', currentMilliseconds);
+
+    return 45654;
+  });
   const numberFormat_Arabic = Intl.NumberFormat('ar-EG');
   // console.log(stopwatch);
 
@@ -19,38 +24,37 @@ export const UseStopwatchRoute = () => {
   // const stopwatch1 = useStopwatch();
   // console.log('stopwatch:', stopwatch);
 
-  stopwatch.onStart((args) => {
+  stopwatch.on('start', (args) => {
     console.log('on start 1', args);
   });
-  // stopwatch.onStart(() => {
-  //   console.log('on start 2');
-  // });
+  stopwatch.on('start', () => {
+    console.log('on start 2');
+  });
 
-  // stopwatch.onStop((args) => {
-  //   console.log('on stop 1', args);
-  // });
-  // stopwatch.onStop((args) => {
-  //   console.log('on stop 2', args);
-  // });
+  stopwatch.on('stop', (args) => {
+    console.log('on stop 1', args);
+  });
+  stopwatch.on('stop', (args) => {
+    console.log('on stop 2', args);
+  });
 
-  // stopwatch.onReset((args) => {
-  //   console.log('on reset 1', args);
-  // });
-  // // stopwatch.onReset(() => {
-  // //   console.log('on reset 2');
-  // // });
+  stopwatch.on('reset', (args) => {
+    console.log('on reset 1', args);
+  });
+  stopwatch.on('reset', () => {
+    console.log('on reset 2');
+  });
 
-  // stopwatch.onUpdate((args) => {
-  //   console.log('on update 1', args);
-  // });
-  // stopwatch.onUpdate((args) => {
+  stopwatch.on('update', (args) => {
+    console.log('on update 1', args);
+  });
+  // stopwatch.on('update',(args) => {
   //   console.log('on update 2', args);
   // });
 
   return (
     <div>
       <section>
-        {/* <div onClick={() => stopwatch1.start()}>{stopwatch1.value}</div> */}
         <h1>stopwatch hook</h1>
         <p>
           <button type="button" onClick={() => stopwatch.start()}>

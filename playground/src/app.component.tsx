@@ -3,7 +3,11 @@ import { createMutable } from 'solid-js/store';
 import { UseStopwatchRoute } from './routes/use-stopwatch.route';
 import { UseTimeRoute } from './routes/use-time.route';
 import { UseTimerRoute } from './routes/use-timer.route';
+// import * as sjt from 'solid-js-timers';
+// import { useStopwatch, useTime, useTimer } from 'solid-js-timers';
 import './app.styles.css';
+
+// console.log('sjt:', sjt);
 
 export const App: Component = () => {
   const v = createMutable({
