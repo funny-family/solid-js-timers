@@ -43,7 +43,8 @@
     "build": "vite build",
     "build:watch": "vite build --watch",
     "link-package": "./scripts/link-package.sh",
-    "release": "release-it"
+    "release": "release-it",
+    "publish": "./scripts/publish.sh"
   },
   "devDependencies": {
     "@types/node": "^20.5.4",
