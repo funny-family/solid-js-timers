@@ -70,7 +70,7 @@ const App = () => {
 | start | Start timer. |
 | stop | Stop timer. |
 | reset | Reset timer. |
-| on | Listener method that fires on the specified timer event. |
+| on | Listener method that fires on the specified timer event. Available events: `start`, `stop`, `reset`, `update`. |
 
 **NOTE**
 
@@ -125,7 +125,7 @@ const App = () => {
 | isRunning | Indicates whether the timer is running or not. |
 | start | Start timer. |
 | stop | Stop timer. |
-| on | Listener method that fires on the specified timer event. |
+| on | Listener method that fires on the specified timer event. Available events: `start`, `stop`, `update`. |
 
 ---
 
@@ -179,7 +179,7 @@ const App = () => {
 | start | Start timer. |
 | stop | Stop timer. |
 | reset | Reset timer. |
-| on | Listener method that fires on the specified timer event. |
+| on | Listener method that fires on the specified timer event. Available events: `start`, `end`, `stop`, `reset`, `update`. |
 
 ---
 
