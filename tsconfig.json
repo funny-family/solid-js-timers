@@ -13,6 +13,7 @@
     "baseUrl": "./",
     "declaration": true,
     "noEmit": true,
+    "noUncheckedIndexedAccess": true,
     "allowJs": true,
     "resolveJsonModule": true,
     "outDir": "dist",
