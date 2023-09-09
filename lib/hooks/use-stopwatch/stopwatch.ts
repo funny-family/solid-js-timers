@@ -1,4 +1,8 @@
-import type { WindowClearInterval, WindowSetInterval } from '../../types';
+import {
+  type EventsProviderInterface,
+  EventsProvider,
+} from './events-provider';
+import { type WindowClearInterval, type WindowSetInterval } from '../../types';
 
 export interface StopwatchInterface {
   milliseconds: number;
@@ -6,10 +10,7 @@ export interface StopwatchInterface {
   readonly start: VoidFunction;
   readonly stop: VoidFunction;
   readonly reset: VoidFunction;
-  readonly on: (
-    type: keyof Pick<StopwatchInterface, 'start' | 'stop' | 'reset'> | 'update',
-    listener: VoidFunction
-  ) => void;
+  readonly on: EventsProviderInterface['on'];
   readonly clearInterval: VoidFunction;
 }
 
@@ -18,6 +19,10 @@ export type StopwatchConstructor = {
 };
 
 export class Stopwatch implements StopwatchInterface {
+  constructor() {
+    this.#eventsProvider = new EventsProvider();
+  }
+
   milliseconds: StopwatchInterface['milliseconds'] = 0;
   isRunning: StopwatchInterface['isRunning'] = false;
 
@@ -31,14 +36,11 @@ export class Stopwatch implements StopwatchInterface {
 
     if (this.#intervalID == null) {
       this.#offset = Date.now();
-      this.#intervalID = (setInterval as WindowSetInterval)(
-        this.#update,
-        90
-      );
+      this.#intervalID = (setInterval as WindowSetInterval)(this.#update, 90);
     }
 
-    if (this.#onStartListener != null) {
-      this.#onStartListener();
+    if (this.#eventsProvider.onStartListener != null) {
+      this.#eventsProvider.onStartListener();
     }
   };
 
@@ -51,8 +53,8 @@ export class Stopwatch implements StopwatchInterface {
     this.#state = 'stopped';
     this.isRunning = false;
 
-    if (this.#onStopListener != null) {
-      this.#onStopListener();
+    if (this.#eventsProvider.onStopListener != null) {
+      this.#eventsProvider.onStopListener();
     }
   };
 
@@ -66,35 +68,13 @@ export class Stopwatch implements StopwatchInterface {
     this.isRunning = false;
     this.milliseconds = 0;
 
-    if (this.#onResetListener != null) {
-      this.#onResetListener();
+    if (this.#eventsProvider.onResetListener != null) {
+      this.#eventsProvider.onResetListener();
     }
   };
 
   on: StopwatchInterface['on'] = (type, listener) => {
-    if (type === 'start') {
-      this.#onStartListener = listener;
-
-      return;
-    }
-
-    if (type === 'stop') {
-      this.#onStopListener = listener;
-
-      return;
-    }
-
-    if (type === 'reset') {
-      this.#onResetListener = listener;
-
-      return;
-    }
-
-    if (type === 'update') {
-      this.#onUpdateListener = listener;
-
-      return;
-    }
+    this.#eventsProvider.on(type, listener);
   };
 
   clearInterval: StopwatchInterface['clearInterval'] = () => {
@@ -107,10 +87,7 @@ export class Stopwatch implements StopwatchInterface {
   #offset: number = 0;
   #intervalID: number | null = null;
   #state: 'idel' | 'running' | 'stopped' = 'idel';
-  #onStartListener: VoidFunction | null = null;
-  #onStopListener: VoidFunction | null = null;
-  #onResetListener: VoidFunction | null = null;
-  #onUpdateListener: VoidFunction | null = null;
+  #eventsProvider: EventsProviderInterface;
 
   get #delta(): number {
     const now = Date.now();
@@ -123,8 +100,8 @@ export class Stopwatch implements StopwatchInterface {
   #update: VoidFunction = () => {
     this.milliseconds += this.#delta;
 
-    if (this.#onUpdateListener != null) {
-      this.#onUpdateListener();
+    if (this.#eventsProvider.onUpdateListener != null) {
+      this.#eventsProvider.onUpdateListener();
     }
   };
 }
